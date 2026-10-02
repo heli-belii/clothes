@@ -1,3 +1,12 @@
+# Clothes — my wardrobe
+
+Personal copy of [tandpfun/wardrobe](https://github.com/tandpfun/wardrobe).
+See [the personal setup guide](docs/PERSONAL_SETUP.md) for adding your photos, running locally, customization, and hosting.
+
+Copied from upstream commit `f44006cce7e4779e595a35b25fbbc8dabc68d7e4`. This copy defaults to Codex imports using your ChatGPT plan allowance. No API key is required. The original project documentation follows; its browser/API instructions only apply if you explicitly set `WARDROBE_IMPORT_MODE=api`.
+
+---
+
 <div align="center">
 
 # Wardrobe

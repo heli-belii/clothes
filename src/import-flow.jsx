@@ -133,7 +133,39 @@ function CleanupEditor({ job, tolerance, setTolerance, busy, onPreview, onAccept
   );
 }
 
-export function WardrobeImportFlow({ onGarmentApproved, onModeledApproved }) {
+export function WardrobeImportFlow(props) {
+  const [setup, setSetup] = useState(null);
+  const [open, setOpen] = useState(false);
+  useEffect(() => {
+    api(CONFIG_API).then(setSetup).catch(() => setSetup({ mode: "codex" }));
+  }, []);
+
+  if (setup?.mode === "api") return <BrowserImportFlow {...props} setup={setup} />;
+  return (
+    <>
+      <aside className="import-tray is-expanded" aria-label="Wardrobe imports">
+        <button className="import-tray__button" type="button" onClick={() => setOpen(true)} aria-label="Import clothes with Codex"><Plus size={19} /></button>
+        <div className="import-tray__actions"><span className="import-tray__label">Import with Codex</span></div>
+      </aside>
+      <div className="import-popover-backdrop" data-open={open} onMouseDown={(event) => event.target === event.currentTarget && setOpen(false)}>
+        <section className="import-popover" role="dialog" aria-modal="true" aria-labelledby="codex-import-title">
+          <header className="import-popover__header">
+            <div><p className="import-popover__eyebrow">Wardrobe import</p><h2 className="import-popover__title" id="codex-import-title">Add clothes with Codex</h2></div>
+            <button className="import-icon-button" type="button" onClick={() => setOpen(false)} aria-label="Close import instructions"><X size={20} /></button>
+          </header>
+          <div className="import-drop-target">
+            <UploadSimple size={28} />
+            <p>Upload your clothing photos in the Codex chat for this project, or give Codex their local folder path. Include a clear reference photo of yourself for modeled previews.</p>
+            <p><code>$import-clothes Import my uploaded clothing photos into this wardrobe and create modeled previews.</code></p>
+            <p>Use Codex signed in with your ChatGPT account to use your plan allowance. No API key is needed. Reload this gallery after the import finishes.</p>
+          </div>
+        </section>
+      </div>
+    </>
+  );
+}
+
+function BrowserImportFlow({ onGarmentApproved, onModeledApproved, setup }) {
   const inputRef = useRef(null);
   const [jobs, setJobs] = useState([]);
   const [drafts, setDrafts] = useState({});
@@ -145,10 +177,8 @@ export function WardrobeImportFlow({ onGarmentApproved, onModeledApproved }) {
   const [busyId, setBusyId] = useState(null);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState(null);
-  const [setup, setSetup] = useState(null);
 
   useEffect(() => {
-    api(CONFIG_API).then(setSetup).catch((requestError) => setSetup({ ready: false, error: requestError.message }));
     api(API)
       .then((storedJobs) => {
         const visibleJobs = storedJobs.filter((job) => job.status !== "complete" && job.stages?.crop?.status !== "rejected" && job.stages?.garment?.status !== "rejected" && job.stages?.modeled?.status !== "rejected");

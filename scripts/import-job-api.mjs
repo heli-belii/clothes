@@ -347,6 +347,7 @@ export function wardrobeImportApi(options = {}) {
   let libraryAssetDir;
   const running = new Map();
   const setting = (name, fallback = "") => options.env?.[name] || process.env[name] || fallback;
+  const importMode = () => setting("WARDROBE_IMPORT_MODE", "codex");
   const apiBaseUrl = () => setting("OPENAI_API_BASE_URL", "https://api.openai.com/v1").replace(/\/$/, "");
 
   async function setupStatus() {
@@ -360,7 +361,8 @@ export function wardrobeImportApi(options = {}) {
       if (error.code !== "ENOENT") throw error;
     }
     return {
-      ready: hasApiKey && hasModelReference,
+      mode: importMode(),
+      ready: importMode() === "api" && hasApiKey && hasModelReference,
       hasApiKey,
       hasModelReference,
       modelReference: referenceSetting,
@@ -432,6 +434,7 @@ export function wardrobeImportApi(options = {}) {
       let failedAssetUrl = null;
       let chromaKeyUsed = null;
       try {
+        if (importMode() !== "api") throw new Error("API generation is disabled. Import photos through Codex.");
         const dir = path.join(jobsDir, current.id);
         const output = path.join(dir, `${stageName}-${stage.attempts}.png`);
         const key = setting("OPENAI_API_KEY");
@@ -496,6 +499,9 @@ export function wardrobeImportApi(options = {}) {
       }
       if (url.pathname === "/api/import/config" && req.method === "GET") {
         return json(res, 200, await setupStatus());
+      }
+      if (req.method === "POST" && importMode() !== "api") {
+        return json(res, 403, { error: "API imports are disabled. Upload your photos in Codex and use $import-clothes." });
       }
       const wardrobeDeleteMatch = url.pathname.match(/^\/api\/import\/wardrobe\/(import-[a-f0-9-]{36})$/i);
       if (wardrobeDeleteMatch && req.method === "DELETE") {
@@ -672,6 +678,7 @@ export function wardrobeImportApi(options = {}) {
       libraryAssetDir = path.join(dataDir, "imported");
       await mkdir(jobsDir, { recursive: true });
       await mkdir(libraryAssetDir, { recursive: true });
+      if (importMode() !== "api") return;
       const ids = await readdir(jobsDir).catch(() => []);
       for (const id of ids) {
         const job = await loadJob(id);

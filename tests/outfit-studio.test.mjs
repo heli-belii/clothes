@@ -3,10 +3,12 @@ import assert from "node:assert/strict";
 import { mkdtemp, mkdir, readFile, writeFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { Readable } from "node:stream";
+import { Readable, PassThrough } from "node:stream";
+import { EventEmitter } from "node:events";
 import sharp from "sharp";
 import { createOutfitStore } from "../scripts/outfit-store.mjs";
 import { createOutfitHandler } from "../scripts/outfit-api.mjs";
+import { codexEnvironment, createCodexOutfitGenerator } from "../scripts/codex-outfit-generator.mjs";
 import { DEFAULT_CONTEXT, emptySelection, missingRequired, normalizeSelection } from "../src/outfit-model.mjs";
 
 const parts = ["upperbody", "lowerbody", "shoes", "wholebody_up", "accessories_up"];
@@ -147,9 +149,9 @@ test("concurrent saves retain every look and invalid mutations leave saved data 
 });
 
 // Exercise the real middleware without binding a port or touching personal data.
-async function call(handler, method, url, payload) {
+async function call(handler, method, url, payload, metadata = {}) {
   const req = Readable.from(payload === undefined ? [] : [Buffer.from(typeof payload === "string" ? payload : JSON.stringify(payload))]);
-  req.method = method; req.url = url;
+  req.method = method; req.url = url; Object.assign(req, metadata);
   const headers = {}, result = { status: 200, headers };
   const res = { set statusCode(value) { result.status = value; }, setHeader(name, value) { headers[name] = value; }, end(value) { result.bytes = Buffer.from(value || ""); } };
   await handler(req, res, () => { result.next = true; });
@@ -180,4 +182,107 @@ test("API saves, prepares, attaches, serves and restores a look; rejects malform
   assert.equal((await call(handler, "GET", base)).value.looks.length, 0);
   assert.equal((await call(handler, "POST", `${base}/looks/${id}/restore`)).status, 200);
   assert.equal((await call(handler, "GET", base)).value.looks[0].preview, accepted.value.image);
+});
+
+function fakeCodex({ auth = "Logged in using ChatGPT", imageGeneration = true } = {}) {
+  const children = [], checks = [];
+  return {
+    children, checks,
+    async execute(command, args, options) { checks.push({ command, args, options }); return { stdout: args.includes("login") ? auth : `image_generation stable ${imageGeneration}\n`, stderr: "" }; },
+    spawn(command, args, options) {
+      const child = Object.assign(new EventEmitter(), { stdin: new PassThrough(), stdout: new PassThrough(), stderr: new PassThrough(), pid: 50000 + children.length, prompt: "" });
+      child.stdin.on("data", (bytes) => { child.prompt += bytes.toString(); });
+      child.kill = () => { queueMicrotask(() => child.emit("close", 143)); return true; };
+      children.push({ child, command, args, options }); return child;
+    },
+  };
+}
+
+test("Codex runner uses ChatGPT authentication, removes API keys and deduplicates clicks", async (t) => {
+  const { store } = await fixture(t), fake = fakeCodex();
+  const runner = createCodexOutfitGenerator(store, { ...fake, env: { PATH: "/bin", OPENAI_API_KEY: "not-a-real-key", CODEX_API_KEY: "not-a-real-key", CODEX_THREAD_ID: "parent" } });
+  t.after(() => runner.close());
+  const look = await store.saveLook(draft()), request = await store.prepareRequest(look.id);
+  const jobs = await Promise.all([runner.start(request.id), runner.start(request.id), runner.start(request.id)]);
+  assert.equal(fake.children.length, 1);
+  assert.ok(jobs.every((job) => job.generation.status === "running"));
+  const { child, args, options } = fake.children[0];
+  assert.equal(options.shell, false);
+  assert.equal(options.env.OPENAI_API_KEY, undefined);
+  assert.equal(options.env.CODEX_API_KEY, undefined);
+  assert.equal(options.env.CODEX_THREAD_ID, undefined);
+  assert.ok(args.includes('forced_login_method="chatgpt"'));
+  assert.ok(args.includes("workspace-write"));
+  assert.ok(args.includes("--approve-for-me"));
+  assert.equal(args.filter((argument) => argument === "--image").length, 5);
+  assert.match(child.prompt, /Use only the built-in image generation tool/);
+  assert.match(child.prompt, /Do not use an API-key/);
+  assert.equal((await store.getState()).looks[0].request.generation.status, "running");
+  await store.attachPreview(request.id, await png());
+  child.emit("close", 0); await runner.idle();
+  assert.equal((await store.getState()).looks[0].request.generation.status, "completed");
+  assert.ok((await store.getState()).looks[0].preview);
+  await runner.start(request.id);
+  assert.equal(fake.children.length, 1, "A matching accepted photo must not consume another generation.");
+  assert.deepEqual(codexEnvironment({ OPENAI_API_KEY: "fake", PATH: "/bin" }), { PATH: "/bin" });
+});
+
+test("Codex runner refuses API-key sign-in or disabled built-in image generation", async (t) => {
+  const { store } = await fixture(t);
+  const look = await store.saveLook(draft()), request = await store.prepareRequest(look.id);
+  for (const fake of [fakeCodex({ auth: "Logged in using an API key" }), fakeCodex({ imageGeneration: false })]) {
+    const runner = createCodexOutfitGenerator(store, fake);
+    assert.equal((await runner.configuration()).available, false);
+    await rejected(runner.start(request.id), /ChatGPT|Built-in image generation/, 503);
+    assert.equal(fake.children.length, 0);
+    await runner.close();
+  }
+});
+
+test("runner failures require explicit retry and stale processes become actionable errors", async (t) => {
+  const { store } = await fixture(t), fake = fakeCodex(), runner = createCodexOutfitGenerator(store, { ...fake, alive: () => false });
+  t.after(() => runner.close());
+  const look = await store.saveLook(draft()), request = await store.prepareRequest(look.id);
+  await runner.start(request.id);
+  const secondLook = await store.saveLook(draft({ name: "Second look" })), secondRequest = await store.prepareRequest(secondLook.id);
+  await rejected(runner.start(secondRequest.id), /Another outfit/, 409);
+  const otherConnection = createCodexOutfitGenerator(store, { ...fake, alive: () => true });
+  await rejected(otherConnection.start(secondRequest.id), /Another outfit/, 409);
+  await otherConnection.close();
+  fake.children[0].child.emit("close", 0); await runner.idle();
+  let job = await store.request(request.id);
+  assert.equal(job.generation.status, "failed");
+  assert.match(job.generation.message, /without attaching/);
+  assert.equal(fake.children.length, 1);
+  await runner.start(request.id);
+  assert.equal(fake.children.length, 2);
+  await runner.close();
+  assert.equal((await store.request(request.id)).generation.status, "failed");
+  await store.setGeneration(secondRequest.id, { status: "running", pid: 99999 });
+  const restarted = createCodexOutfitGenerator(store, { ...fake, alive: () => false });
+  await restarted.reconcile();
+  job = await store.request(secondRequest.id);
+  assert.equal(job.generation.status, "failed");
+  assert.match(job.generation.message, /interrupted/);
+  await restarted.close();
+});
+
+test("generation API rejects remote or cross-origin callers and exposes progress to polling", async (t) => {
+  const { store } = await fixture(t), fake = fakeCodex(), runner = createCodexOutfitGenerator(store, fake);
+  t.after(() => runner.close());
+  const handler = createOutfitHandler(store, runner), base = "/api/outfit-studio";
+  const look = await store.saveLook(draft()), request = await store.prepareRequest(look.id), route = `${base}/requests/${request.id}/generate`;
+  assert.equal((await call(handler, "POST", route, undefined, { headers: { origin: "https://unrelated.example", host: "localhost:5173" } })).status, 403);
+  assert.equal((await call(handler, "POST", route, undefined, { headers: { origin: "null", host: "localhost:5173" } })).status, 403);
+  assert.equal((await call(handler, "POST", route, undefined, { socket: { remoteAddress: "192.168.1.20" } })).status, 403);
+  assert.equal(fake.children.length, 0);
+  const started = await call(handler, "POST", route, undefined, { headers: { origin: "http://localhost:5173", host: "localhost:5173" }, socket: { remoteAddress: "127.0.0.1" } });
+  assert.equal(started.status, 202);
+  const state = (await call(handler, "GET", base)).value;
+  assert.equal(state.codex.billing, "chatgpt");
+  assert.equal(state.looks[0].request.generation.status, "running");
+  assert.ok(state.looks[0].request.appUrl.startsWith("codex://new?"));
+  await store.attachPreview(request.id, await png());
+  fake.children[0].child.emit("close", 0); await runner.idle();
+  assert.ok((await call(handler, "GET", base)).value.looks[0].preview);
 });

@@ -47,7 +47,7 @@ export function createOutfitStore(root) {
         try {
           const job = await request(look.requestId);
           if (job.fingerprint === outfitFingerprint(look.selection, look.context)) {
-            result.request = { id: job.id, status: job.status, handoff: job.handoff };
+            result.request = { id: job.id, status: job.status, handoff: job.handoff, appUrl: `codex://new?${new URLSearchParams({ path: root, prompt: job.handoff })}`, generation: job.generation || null };
             if (job.status === "accepted" && job.image) result.preview = `/api/outfit-studio/requests/${job.id}/preview?v=${job.imageHash}`;
           }
         } catch (error) { if (error.status !== 404) throw error; }
@@ -80,6 +80,13 @@ export function createOutfitStore(root) {
 
   return {
     root, requestsDir, request, requestDir,
+    setGeneration: (id, value) => mutate(async () => {
+      if (!["running", "completed", "failed"].includes(value.status)) fail("Invalid generation status.");
+      const job = await request(id);
+      job.generation = { ...job.generation, ...value };
+      await atomicJson(path.join(requestDir(id), "request.json"), job);
+      return job.generation;
+    }),
     async getState() { await writes; return hydrate(await load()); },
     async identityFile() { const refs = await identities(); if (!refs.length) fail("Identity reference not found.", 404); return path.join(root, refs.find((p) => p.startsWith("data/identity-references/")) || refs[0]); },
     saveLook: (input, id = null) => mutate(async () => {

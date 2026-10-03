@@ -22,6 +22,6 @@ export default defineConfig(({ mode }) => {
       port: 4173,
       allowedHosts: ["localhost"],
     },
-    plugins: [react(), responsiveImageApi(), wardrobeImportApi({ env }), wardrobeOutfitApi()],
+    plugins: [react(), responsiveImageApi(), wardrobeImportApi({ env }), wardrobeOutfitApi({ env })],
   };
 });

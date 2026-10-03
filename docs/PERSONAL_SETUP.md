@@ -62,7 +62,7 @@ For complete outfit ideas, request a specific number:
 $generate-outfits Create 5 modeled outfit ideas from my wardrobe.
 ```
 
-The outfit skill creates a separate lookbook under `data/`. For combinations you choose yourself, use the new **Outfits** tab: select clothes, choose School, Hiking or Gym, save looks, and prepare a modeled-photo request to paste into Codex. See [the outfit studio guide](OUTFIT_STUDIO.md).
+The outfit skill creates a separate lookbook under `data/`. For combinations you choose yourself, use the **Outfits** tab: select clothes, choose School, Hiking or Gym, save looks, and click **Generate with Codex** to create a modeled photo directly through your local ChatGPT-authenticated Codex. See [the outfit studio guide](OUTFIT_STUDIO.md).
 
 ## Import existing cutouts without AI
 

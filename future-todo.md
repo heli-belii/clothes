@@ -4,4 +4,5 @@
 2. Upload my entire closet into the application
 3. Find a local server to host the website
 4. Add a functionality to identify my taste in clothes and my overall style
-5. Look for new clothing options to match those taste
+5. Look for new clothing options to match t
+hose taste

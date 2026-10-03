@@ -45,7 +45,7 @@
 .outfit-selected-list span { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; color: var(--muted); }
 .outfit-selected-list i { width: 8px; height: 8px; border-radius: 50%; border: 1px solid rgba(25, 25, 25, .15); flex-shrink: 0; }
 .outfit-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-.outfit-button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 40px; padding: 10px 14px; border: 1px solid var(--line); color: var(--ink); background: transparent; font-size: 12px; line-height: 1.4; cursor: pointer; }
+.outfit-button { text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 40px; padding: 10px 14px; border: 1px solid var(--line); color: var(--ink); background: transparent; font-size: 12px; line-height: 1.4; cursor: pointer; }
 .outfit-button.is-primary, .outfit-button.is-active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
 .outfit-button:hover:not(:disabled) { border-color: var(--ink); background: rgba(25, 25, 25, .05); }
 .outfit-button.is-primary:hover:not(:disabled), .outfit-button.is-active:hover:not(:disabled) { background: var(--accent); border-color: var(--accent); }

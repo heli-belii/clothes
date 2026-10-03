@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import sharp from "sharp";
 import { createOutfitStore, LOOK_ID, REQUEST_ID } from "./outfit-store.mjs";
+import { createCodexOutfitGenerator } from "./codex-outfit-generator.mjs";
 
 const API = "/api/outfit-studio";
 function json(res, status, value) { res.statusCode = status; res.setHeader("Content-Type", "application/json; charset=utf-8"); res.setHeader("Cache-Control", "no-store"); res.end(JSON.stringify(value)); }
@@ -14,13 +15,24 @@ async function body(req, limit = 256 * 1024) {
   return input;
 }
 
-export function createOutfitHandler(store) {
+function localGenerationRequest(req) {
+  const address = req.socket?.remoteAddress;
+  const origin = req.headers?.origin, host = req.headers?.host;
+  if (address && !["127.0.0.1", "::1", "::ffff:127.0.0.1"].includes(address)) return false;
+  if (origin) { try { if (!host || new URL(origin).host !== host) return false; } catch { return false; } }
+  return true;
+}
+
+export function createOutfitHandler(store, generator = null) {
   return async (req, res, next) => {
     const url = new URL(req.url, "http://localhost");
     if (url.pathname !== API && !url.pathname.startsWith(API + "/")) return next();
     try {
       const route = url.pathname.slice(API.length).split("/").filter(Boolean);
-      if (!route.length && req.method === "GET") return json(res, 200, await store.getState());
+      if (!route.length && req.method === "GET") {
+        await generator?.reconcile();
+        return json(res, 200, { ...await store.getState(), codex: generator ? await generator.configuration() : { available: false, reason: "The local Codex connection is not enabled." } });
+      }
       if (route.length === 1 && route[0] === "identity" && req.method === "GET") {
         const bytes = await sharp(await store.identityFile()).resize({ width: 240, height: 300, fit: "inside", withoutEnlargement: true }).png().toBuffer();
         res.setHeader("Content-Type", "image/png"); res.setHeader("Cache-Control", "no-store"); return res.end(bytes);
@@ -32,6 +44,11 @@ export function createOutfitHandler(store) {
         if (route.length === 2 && req.method === "DELETE") return json(res, 200, await store.archiveLook(route[1]));
         if (route.length === 3 && route[2] === "restore" && req.method === "POST") return json(res, 200, await store.archiveLook(route[1], true));
         if (route.length === 3 && route[2] === "request" && req.method === "POST") return json(res, 201, await store.prepareRequest(route[1]));
+      }
+      if (route[0] === "requests" && REQUEST_ID.test(route[1] || "") && route.length === 3 && route[2] === "generate" && req.method === "POST") {
+        if (!localGenerationRequest(req)) return json(res, 403, { error: "Start generation from the wardrobe website on this Mac." });
+        if (!generator) return json(res, 503, { error: "The local Codex connection is not enabled." });
+        return json(res, 202, await generator.start(route[1]));
       }
       if (route[0] === "requests" && REQUEST_ID.test(route[1] || "") && route.length === 3 && route[2] === "preview") {
         if (req.method === "GET") {
@@ -50,12 +67,12 @@ export function createOutfitHandler(store) {
   };
 }
 
-export function wardrobeOutfitApi() {
-  let handler;
+export function wardrobeOutfitApi(options = {}) {
+  let handler, generator;
   return {
     name: "wardrobe-outfit-studio",
-    configResolved(config) { handler = createOutfitHandler(createOutfitStore(config.root)); },
-    configureServer(server) { server.middlewares.use((req, res, next) => handler(req, res, next)); },
-    configurePreviewServer(server) { server.middlewares.use((req, res, next) => handler(req, res, next)); },
+    configResolved(config) { const store = createOutfitStore(config.root); generator = createCodexOutfitGenerator(store, { command: options.env?.WARDROBE_CODEX_COMMAND }); handler = createOutfitHandler(store, generator); },
+    configureServer(server) { server.middlewares.use((req, res, next) => handler(req, res, next)); server.httpServer?.once("close", () => { void generator.close(); }); },
+    configurePreviewServer(server) { server.middlewares.use((req, res, next) => handler(req, res, next)); server.httpServer?.once("close", () => { void generator.close(); }); },
   };
 }

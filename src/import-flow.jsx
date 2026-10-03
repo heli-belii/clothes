@@ -133,14 +133,14 @@ function CleanupEditor({ job, tolerance, setTolerance, busy, onPreview, onAccept
   );
 }
 
-export function WardrobeImportFlow(props) {
+export function WardrobeImportFlow({ active = true, ...props }) {
   const [setup, setSetup] = useState(null);
   const [open, setOpen] = useState(false);
   useEffect(() => {
     api(CONFIG_API).then(setSetup).catch(() => setSetup({ mode: "codex" }));
   }, []);
 
-  if (setup?.mode === "api") return <BrowserImportFlow {...props} setup={setup} />;
+  if (setup?.mode === "api") return <BrowserImportFlow {...props} setup={setup} active={active} />;
   return (
     <>
       <aside className="import-tray is-expanded" aria-label="Wardrobe imports">
@@ -165,7 +165,7 @@ export function WardrobeImportFlow(props) {
   );
 }
 
-function BrowserImportFlow({ onGarmentApproved, onModeledApproved, setup }) {
+function BrowserImportFlow({ onGarmentApproved, onModeledApproved, setup, active: isActive }) {
   const inputRef = useRef(null);
   const [jobs, setJobs] = useState([]);
   const [drafts, setDrafts] = useState({});
@@ -224,6 +224,7 @@ function BrowserImportFlow({ onGarmentApproved, onModeledApproved, setup }) {
   }, [setup]);
 
   useEffect(() => {
+    if (!isActive) return undefined;
     let depth = 0;
     const onDragEnter = (event) => { if (![...event.dataTransfer.types].includes("Files")) return; event.preventDefault(); depth += 1; setDragging(true); };
     const onDragOver = (event) => { if ([...event.dataTransfer.types].includes("Files")) event.preventDefault(); };
@@ -232,7 +233,7 @@ function BrowserImportFlow({ onGarmentApproved, onModeledApproved, setup }) {
     const onPaste = (event) => { const files = [...event.clipboardData.files]; if (files.some((file) => file.type.startsWith("image/"))) { event.preventDefault(); submitFiles(files); } };
     window.addEventListener("dragenter", onDragEnter); window.addEventListener("dragover", onDragOver); window.addEventListener("dragleave", onDragLeave); window.addEventListener("drop", onDrop); window.addEventListener("paste", onPaste);
     return () => { window.removeEventListener("dragenter", onDragEnter); window.removeEventListener("dragover", onDragOver); window.removeEventListener("dragleave", onDragLeave); window.removeEventListener("drop", onDrop); window.removeEventListener("paste", onPaste); };
-  }, [submitFiles]);
+  }, [submitFiles, isActive]);
 
   const perform = async (job, stage, action, prompt = "") => {
     setBusyId(job.id); setError("");

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Check, Plus, Trash, X } from "@phosphor-icons/react";
 import { WardrobeImportFlow } from "./import-flow.jsx";
 import { OptimizedImage } from "./OptimizedImage.jsx";
+import { OutfitStudio } from "./OutfitStudio.jsx";
 
 const STORAGE_KEY = "open-wardrobe-edits-v1";
 const DELETED_STORAGE_KEY = "open-wardrobe-deleted-v1";
@@ -475,23 +476,25 @@ function ItemViewer({ item, onClose, onSave, onDelete }) {
       </button>
 
       {hasModeledImage ? (
-        <div className="modeled-hero">
-          <OptimizedImage
-            className="modeled-hero-photo"
-            src={item.modeledImage}
-            alt={`${draft.name || type} worn by a model`}
-            sizes="(max-width: 860px) 100vw, 520px"
-            breakpoints={[320, 480, 640, 800, 1040, 1280]}
-            quality={82}
-            priority
-          />
+        <>
+          <div className="modeled-hero">
+            <OptimizedImage
+              className="modeled-hero-photo"
+              src={item.modeledImage}
+              alt={`${draft.name || type} worn by a model`}
+              sizes="(max-width: 860px) 100vw, 520px"
+              breakpoints={[320, 480, 640, 800, 1040, 1280]}
+              quality={82}
+              priority
+            />
+            {garmentArtwork}
+          </div>
           <div className="viewer-heading modeled-heading">
             <div>
               <h2>{draft.name || TYPE_MAP[draft.part]?.singular}</h2>
             </div>
           </div>
-          {garmentArtwork}
-        </div>
+        </>
       ) : (
         <>
           <div className="viewer-heading">
@@ -533,11 +536,30 @@ function ItemViewer({ item, onClose, onSave, onDelete }) {
 }
 
 export function App() {
+  const [activePage, setActivePage] = useState(() => window.location.hash === "#outfits" ? "outfits" : "wardrobe");
   const [items, setItems] = useState([]);
   const [activeType, setActiveType] = useState("all");
   const [selectedId, setSelectedId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    const onHashChange = () => { setActivePage(window.location.hash === "#outfits" ? "outfits" : "wardrobe"); setSelectedId(null); };
+    window.addEventListener("hashchange", onHashChange);
+    return () => window.removeEventListener("hashchange", onHashChange);
+  }, []);
+
+  const changePage = (page) => {
+    setActivePage(page); setSelectedId(null);
+    window.history.replaceState(null, "", page === "outfits" ? "#outfits" : "#wardrobe");
+  };
+
+  const navigateTabs = (event) => {
+    if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+    event.preventDefault();
+    const page = event.key === "Home" ? "wardrobe" : event.key === "End" ? "outfits" : activePage === "wardrobe" ? "outfits" : "wardrobe";
+    changePage(page); document.getElementById(`${page}-tab`)?.focus();
+  };
 
   useEffect(() => {
     fetch("/api/import/wardrobe", { cache: "no-store" })
@@ -609,8 +631,11 @@ export function App() {
         <header className="gallery-header">
           <div className="gallery-meta-row">
             <p className="piece-count">{items.length} {items.length === 1 ? "piece" : "pieces"}</p>
+            <div className="collection-tabs" role="tablist" aria-label="Your collection" onKeyDown={navigateTabs}>
+              {[{ id: "wardrobe", label: "Wardrobe" }, { id: "outfits", label: "Outfits" }].map((page) => <button key={page.id} type="button" role="tab" id={`${page.id}-tab`} aria-selected={activePage === page.id} aria-controls={`${page.id}-panel`} tabIndex={activePage === page.id ? 0 : -1} onClick={() => changePage(page.id)}>{page.label}</button>)}
+            </div>
           </div>
-          <nav className="category-nav" aria-label="Filter wardrobe by item type">
+          {activePage === "wardrobe" && <nav className="category-nav" aria-label="Filter wardrobe by item type">
             {TYPES.map((type) => (
               <button
                 key={type.id}
@@ -622,11 +647,12 @@ export function App() {
                 {type.label}
               </button>
             ))}
-          </nav>
+          </nav>}
         </header>
 
         {error && <p className="status error">{error}</p>}
         {!error && loading && <p className="status">Loading wardrobe</p>}
+        <div id="wardrobe-panel" role="tabpanel" aria-labelledby="wardrobe-tab" hidden={activePage !== "wardrobe"}>
         {!error && !loading && !items.length && <p className="status empty">Use the + button for instructions to import your first piece.</p>}
 
         {!!items.length && (
@@ -641,10 +667,14 @@ export function App() {
             ))}
           </section>
         )}
+        </div>
+        <div id="outfits-panel" role="tabpanel" aria-labelledby="outfits-tab" hidden={activePage !== "outfits"}>
+          {!loading && !error && <OutfitStudio items={items} active={activePage === "outfits"} />}
+        </div>
       </main>
 
       {selectedItem && <ItemViewer item={selectedItem} onClose={() => setSelectedId(null)} onSave={saveItem} onDelete={deleteItem} />}
-      <WardrobeImportFlow onGarmentApproved={addImportedItem} onModeledApproved={attachImportedModeledImage} />
+      <div hidden={activePage !== "wardrobe"}><WardrobeImportFlow active={activePage === "wardrobe"} onGarmentApproved={addImportedItem} onModeledApproved={attachImportedModeledImage} /></div>
     </div>
   );
 }

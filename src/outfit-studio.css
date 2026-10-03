@@ -1,0 +1,171 @@
+.collection-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); }
+.collection-tabs button { border: 0; border-bottom: 2px solid transparent; margin-bottom: -1px; padding: 12px 18px; background: transparent; color: var(--muted); cursor: pointer; font-size: 13px; }
+.collection-tabs button[aria-selected="true"] { border-bottom-color: var(--ink); color: var(--ink); }
+.collection-tabs button:hover { color: var(--ink); }
+.collection-tabs button:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+.outfit-studio { max-width: 1560px; margin: 0 auto; padding: 46px 56px 80px; }
+.outfit-studio h1, .outfit-studio h2, .outfit-studio h3, .outfit-studio p { margin: 0; }
+.outfit-studio h1 { font-size: clamp(30px, 3.3vw, 45px); font-weight: 520; letter-spacing: -.04em; line-height: 1.15; }
+.outfit-studio h2 { font-size: 21px; font-weight: 520; letter-spacing: -.025em; }
+.outfit-studio h3 { font-size: 16px; font-weight: 550; }
+.outfit-studio .outfit-eyebrow { font-size: 10px; text-transform: uppercase; letter-spacing: .12em; color: var(--muted); margin-bottom: 10px; overflow-wrap: anywhere; }
+.outfit-intro { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin-bottom: 32px; }
+.outfit-intro h1 + p { margin-top: 12px; font-size: 14px; line-height: 1.6; color: var(--muted); }
+.outfit-workspace { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); align-items: start; gap: 32px; }
+.outfit-preview, .outfit-panel { border: 1px solid var(--line); padding: 22px; min-width: 0; background: rgba(255, 255, 255, .12); }
+.outfit-preview { position: sticky; top: 24px; max-height: calc(100dvh - 48px); overflow-y: auto; scrollbar-width: thin; scroll-margin-top: 24px; }
+.outfit-preview-top, .outfit-section-heading, .outfit-picker-heading, .outfit-saved-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.outfit-preview-top { margin-bottom: 20px; }
+.outfit-preview-top > div:first-child { min-width: 0; }
+.outfit-preview-tabs { display: flex; flex-shrink: 0; border: 1px solid var(--line); }
+.outfit-preview-tabs button { padding: 8px 12px; border: 0; color: var(--muted); background: transparent; font-size: 12px; cursor: pointer; }
+.outfit-preview-tabs button.active { background: var(--ink); color: var(--paper); }
+.outfit-preview-tabs button + button { border-left: 1px solid var(--line); }
+.outfit-layout { position: relative; display: grid; grid-template-columns: .8fr 1.3fr .8fr; grid-template-rows: 1.15fr 1.05fr .6fr; gap: 12px; width: 100%; aspect-ratio: 1; padding: 24px 16px; background: #eae6dd; }
+.outfit-layout-piece { display: flex; align-items: center; justify-content: center; min-width: 0; min-height: 0; }
+.outfit-layout-piece img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.outfit-layout-piece > span { display: flex; flex-direction: column; gap: 5px; padding: 14px 5px; color: #746e64; font-size: 11px; text-align: center; line-height: 1.5; border: 1px dashed #c5bfb3; width: 100%; }
+.outfit-layout-piece small { font-size: 9px; font-weight: 400; }
+.piece-upperbody { grid-column: 2; grid-row: 1; }
+.piece-lowerbody { grid-column: 2; grid-row: 2; }
+.piece-shoes { grid-column: 2; grid-row: 3; }
+.piece-wholebody_up { grid-column: 1; grid-row: 1 / 3; }
+.piece-accessories_up { grid-column: 3; grid-row: 1; padding: 10px; }
+.outfit-layout.is-compact { gap: 5px; padding: 14px 10px; }
+.outfit-layout.is-compact .outfit-layout-piece:not(.is-filled) { visibility: hidden; }
+.outfit-modeled { display: block; width: 100%; height: auto; max-height: 630px; object-fit: contain; background: #eae6dd; }
+.outfit-preview-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; padding: 30px; aspect-ratio: 1; background: #eae6dd; text-align: center; }
+.outfit-preview-empty > svg { color: var(--accent); }
+.outfit-preview-empty p { max-width: 310px; font-size: 13px; line-height: 1.7; color: var(--muted); }
+.outfit-identity { display: flex; align-items: center; gap: 12px; margin-top: 12px; text-align: left; font-size: 12px; line-height: 1.6; }
+.outfit-identity img { height: 54px; width: 46px; object-fit: cover; object-position: center; }
+.outfit-identity small { color: var(--muted); font-size: 10px; }
+.outfit-selected-list { display: flex; flex-wrap: wrap; gap: 7px 14px; padding: 16px 0; border-bottom: 1px solid var(--line); margin-bottom: 16px; }
+.outfit-selected-list span { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; color: var(--muted); }
+.outfit-selected-list i { width: 8px; height: 8px; border-radius: 50%; border: 1px solid rgba(25, 25, 25, .15); flex-shrink: 0; }
+.outfit-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.outfit-button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 40px; padding: 10px 14px; border: 1px solid var(--line); color: var(--ink); background: transparent; font-size: 12px; line-height: 1.4; cursor: pointer; }
+.outfit-button.is-primary, .outfit-button.is-active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.outfit-button:hover:not(:disabled) { border-color: var(--ink); background: rgba(25, 25, 25, .05); }
+.outfit-button.is-primary:hover:not(:disabled), .outfit-button.is-active:hover:not(:disabled) { background: var(--accent); border-color: var(--accent); }
+.outfit-studio button:disabled { cursor: default; opacity: .5; }
+.outfit-studio button:focus-visible, .outfit-studio summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.outfit-studio .outfit-helper { font-size: 12px; line-height: 1.7; color: var(--muted); margin-top: 12px; }
+.outfit-studio .is-error { color: var(--accent); }
+.outfit-controls { display: grid; gap: 20px; min-width: 0; margin: 0; padding: 0; border: 0; }
+.outfit-section-heading > span { color: var(--muted); font-size: 11px; }
+.outfit-slot-list { display: grid; gap: 0; margin-top: 18px; border: 1px solid var(--line); }
+.outfit-slot { width: 100%; display: grid; grid-template-columns: 90px minmax(0, 1fr) 36px; align-items: center; gap: 12px; min-height: 62px; padding: 10px 14px; border: 0; background: transparent; text-align: left; cursor: pointer; }
+.outfit-slot + .outfit-slot { border-top: 1px solid var(--line); }
+.outfit-slot.active { background: #e7e1d6; box-shadow: inset 3px 0 var(--accent); }
+.outfit-slot > span { display: flex; flex-direction: column; gap: 4px; font-size: 12px; }
+.outfit-slot small { color: var(--muted); font-size: 9px; }
+.outfit-slot strong { font-size: 12px; font-weight: 450; color: var(--muted); overflow-wrap: anywhere; }
+.outfit-slot img { width: 36px; height: 40px; object-fit: contain; }
+.outfit-slot > svg { margin: auto; color: var(--muted); }
+.outfit-picker-heading { margin: 24px 0 12px; }
+.outfit-text-button { display: inline-flex; align-items: center; gap: 6px; padding: 4px 0; border: 0; background: transparent; color: var(--muted); font-size: 11px; cursor: pointer; }
+.outfit-text-button:hover:not(:disabled) { color: var(--ink); text-decoration: underline; }
+.outfit-search input, .outfit-field input, .outfit-field select, .outfit-field textarea, .outfit-handoff textarea { width: 100%; border: 1px solid var(--line); border-radius: 0; min-height: 40px; padding: 10px 12px; color: var(--ink); background: rgba(255, 255, 255, .2); font: inherit; font-size: 12px; line-height: 1.5; }
+.outfit-search input:focus, .outfit-field input:focus, .outfit-field select:focus, .outfit-field textarea:focus, .outfit-handoff textarea:focus { outline: 1px solid var(--accent); border-color: var(--accent); }
+.outfit-field textarea, .outfit-handoff textarea { resize: vertical; }
+.outfit-item-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; margin-top: 12px; max-height: 355px; overflow-y: auto; padding: 3px; scrollbar-width: thin; }
+.outfit-item { position: relative; display: flex; flex-direction: column; align-items: center; gap: 8px; min-width: 0; padding: 10px 7px; border: 1px solid transparent; color: var(--ink); background: rgba(255, 255, 255, .15); cursor: pointer; }
+.outfit-item img { display: block; width: 100%; height: 98px; object-fit: contain; }
+.outfit-item span { width: 100%; font-size: 10px; line-height: 1.5; overflow-wrap: anywhere; }
+.outfit-item:hover { border-color: var(--line); }
+.outfit-item.selected { border-color: var(--accent); background: #eae3d8; }
+.outfit-item-check { position: absolute; right: 5px; top: 5px; padding: 1px; background: var(--ink); color: var(--paper); }
+.outfit-scenes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 18px 0 20px; }
+.outfit-scene { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; min-width: 0; min-height: 142px; padding: 14px 12px; border: 1px solid var(--line); background: transparent; color: var(--ink); text-align: left; cursor: pointer; }
+.outfit-scene strong { font-size: 12px; font-weight: 550; }
+.outfit-scene span { font-size: 10px; color: var(--muted); line-height: 1.5; }
+.outfit-scene.selected { border-color: var(--ink); background: #eae3d8; }
+.outfit-scene.scene-hiking.selected { background: #e4e7dc; }
+.outfit-scene.scene-gym.selected { background: #e1e5e6; }
+.outfit-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin: 16px 0; }
+.outfit-field { display: block; min-width: 0; }
+.outfit-field > span { display: flex; align-items: baseline; gap: 8px; margin-bottom: 8px; font-size: 10px; color: var(--muted); letter-spacing: .05em; text-transform: uppercase; }
+.outfit-field small { font-size: 9px; letter-spacing: 0; text-transform: none; }
+.outfit-name { padding: 0 2px; }
+.outfit-personalize summary { font-size: 15px; font-weight: 500; cursor: pointer; }
+.outfit-personalize .outfit-field + .outfit-button { margin-top: 14px; }
+.outfit-handoff { border-top: 1px solid var(--line); padding-top: 20px; margin-top: 20px; }
+.outfit-handoff p { margin: 10px 0 12px; font-size: 12px; color: var(--muted); line-height: 1.7; }
+.outfit-handoff textarea { min-height: 110px; font-size: 11px; margin-bottom: 10px; }
+.outfit-upload { margin-top: 14px; }
+.outfit-message { display: flex; align-items: center; gap: 16px; justify-content: space-between; border: 1px solid var(--line); padding: 14px 18px; margin-bottom: 22px; font-size: 13px; line-height: 1.6; }
+.outfit-loading { padding: 30px 0; font-size: 14px; color: var(--muted); }
+.outfit-saved { margin-top: 50px; padding-top: 28px; border-top: 1px solid var(--line); }
+.outfit-saved-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 20px; margin-top: 20px; }
+.outfit-saved-card { min-width: 0; border: 1px solid var(--line); }
+.outfit-saved-open { display: block; width: 100%; padding: 0; border: 0; background: transparent; color: var(--ink); text-align: left; cursor: pointer; }
+.outfit-saved-photo { display: block; width: 100%; aspect-ratio: 1; object-fit: contain; background: #eae6dd; }
+.outfit-saved-title { display: block; padding: 14px 14px 5px; font-size: 14px; overflow-wrap: anywhere; }
+.outfit-saved-setting { display: block; padding: 0 14px 14px; color: var(--muted); font-size: 10px; line-height: 1.6; }
+.outfit-saved-actions { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-top: 1px solid var(--line); }
+.outfit-saved-actions label { display: flex; align-items: center; gap: 6px; margin-right: auto; font-size: 11px; color: var(--muted); cursor: pointer; }
+.outfit-saved-actions input { accent-color: var(--accent); }
+.outfit-icon-button { display: grid; place-items: center; width: 32px; height: 32px; border: 0; background: transparent; color: var(--muted); cursor: pointer; }
+.outfit-icon-button[aria-pressed="true"] { color: var(--accent); }
+.outfit-comparison { margin-top: 32px; border: 1px solid var(--line); padding: 24px; }
+.outfit-comparison-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; margin-top: 20px; }
+.outfit-comparison-grid > article { min-width: 0; }
+.outfit-comparison-grid h3 { margin-top: 16px; overflow-wrap: anywhere; }
+.outfit-comparison-grid .outfit-button { margin-top: 12px; }
+.outfit-compare-photo { display: block; width: 100%; aspect-ratio: 1; object-fit: contain; background: #eae6dd; }
+.outfit-compare-empty { display: grid; place-items: center; background: #eae6dd; padding: 20px; text-align: center; color: var(--muted); font-size: 13px; }
+.outfit-studio .sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+
+@media (max-width: 1180px) {
+  .outfit-studio { padding-inline: 34px; }
+  .outfit-workspace { gap: 20px; }
+  .outfit-preview, .outfit-panel { padding: 18px; }
+  .outfit-scene { padding: 12px 9px; }
+  .outfit-slot { grid-template-columns: 72px minmax(0, 1fr) 30px; gap: 8px; padding-inline: 10px; }
+}
+@media (max-width: 860px) {
+  .outfit-studio { padding: 36px 24px 60px; }
+  .outfit-workspace { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+  .outfit-preview { position: static; max-height: none; overflow: visible; }
+  .outfit-layout, .outfit-preview-empty, .outfit-modeled { max-height: 540px; }
+  .outfit-layout { aspect-ratio: 1.15; }
+  .outfit-item-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .outfit-layout.is-compact, .outfit-comparison .outfit-layout { aspect-ratio: 1; }
+}
+@media (max-width: 520px) {
+  .collection-tabs button { padding: 10px 12px; font-size: 12px; }
+  .gallery-meta-row { gap: 10px; }
+  .outfit-studio { padding: 30px 18px 50px; }
+  .outfit-intro { align-items: flex-start; gap: 16px; }
+  .outfit-intro .outfit-button { padding: 8px 10px; flex-shrink: 0; font-size: 11px; }
+  .outfit-intro h1 { font-size: 29px; }
+  .outfit-intro h1 + p { font-size: 12px; }
+  .outfit-preview, .outfit-panel { padding: 14px; }
+  .outfit-preview-top { gap: 10px; }
+  .outfit-layout { padding: 18px 10px; gap: 8px; aspect-ratio: 1; }
+  .outfit-layout-piece > span { font-size: 10px; }
+  .piece-accessories_up { padding: 3px; }
+  .outfit-preview-empty { padding: 22px 14px; }
+  .outfit-preview-empty p { font-size: 12px; }
+  .outfit-identity { gap: 8px; }
+  .outfit-identity small { font-size: 9px; }
+  .outfit-item-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .outfit-item img { height: 80px; }
+  .outfit-scene { min-height: 134px; gap: 8px; padding: 12px 8px; }
+  .outfit-scene span { font-size: 9px; }
+  .outfit-fields { gap: 12px; }
+  .outfit-saved-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .outfit-saved-title { padding-inline: 10px; font-size: 12px; }
+  .outfit-saved-setting { padding-inline: 10px; }
+  .outfit-saved-actions { padding: 6px; gap: 2px; }
+  .outfit-saved-actions label { font-size: 10px; gap: 3px; }
+  .outfit-saved-actions input { margin: 0; }
+  .outfit-icon-button { width: 26px; }
+  .outfit-comparison { padding: 14px; }
+  .outfit-comparison-grid { gap: 12px; }
+  .outfit-comparison .outfit-layout { padding: 10px 6px; gap: 4px; }
+  .outfit-comparison .outfit-layout-piece:not(.is-filled) { visibility: hidden; }
+  .outfit-comparison-grid h3 { font-size: 13px; }
+}

@@ -310,19 +310,12 @@ button { font: inherit; }
 }
 
 .modeled-heading {
-  position: absolute;
-  top: 24px;
-  left: 24px;
-  z-index: 6;
-  max-width: calc(100% - 108px);
-  padding: 13px 16px 14px;
-  background: rgba(246, 241, 232, .88);
-  -webkit-backdrop-filter: blur(14px);
-  backdrop-filter: blur(14px);
+  padding: 12px 34px 8px;
 }
 
 .modeled-heading h2 {
   max-width: none;
+  overflow-wrap: anywhere;
   font-size: 18px;
   font-weight: 520;
   letter-spacing: -.015em;
@@ -830,6 +823,7 @@ button { font: inherit; }
   .gallery-grid { padding-inline: 32px; grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); gap-inline: 18px; }
   .category-nav { max-width: 100%; }
   .viewer { padding-inline: 30px; }
+  .modeled-heading { padding-inline: 30px; }
   .has-modeled-image .viewer-details.editing { padding-inline: 30px; }
 }
 
@@ -884,7 +878,7 @@ button { font: inherit; }
   .modeled-hero-photo { height: 326px; object-position: 49% 43%; }
   .modeled-hero::before { height: 150px; }
   .modeled-hero::after { height: 112px; }
-  .modeled-heading { top: 20px; left: 20px; padding: 11px 13px 12px; }
+  .modeled-heading { padding: 12px 22px 8px; }
   .modeled-heading h2 { font-size: 17px; }
   .has-modeled-image .viewer-icon-close { top: 20px; right: 20px; }
   .viewer-art.viewer-art-floating { right: 15px; bottom: 0; flex-basis: auto; width: 40%; height: 158px; min-height: 0; padding: 0; }

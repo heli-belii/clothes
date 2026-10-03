@@ -3,6 +3,7 @@ import react from "@vitejs/plugin-react";
 import { wardrobeImportApi } from "./scripts/import-job-api.mjs";
 import { responsiveImageApi } from "./scripts/responsive-image-api.mjs";
 import { wardrobeOutfitApi } from "./scripts/outfit-api.mjs";
+import { wardrobeTasteApi } from "./scripts/taste-api.mjs";
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
@@ -22,6 +23,6 @@ export default defineConfig(({ mode }) => {
       port: 4173,
       allowedHosts: ["localhost"],
     },
-    plugins: [react(), responsiveImageApi(), wardrobeImportApi({ env }), wardrobeOutfitApi({ env })],
+    plugins: [react(), responsiveImageApi(), wardrobeImportApi({ env }), wardrobeOutfitApi({ env }), wardrobeTasteApi({ env })],
   };
 });

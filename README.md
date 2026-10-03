@@ -5,6 +5,8 @@ See [the personal setup guide](docs/PERSONAL_SETUP.md) for adding your photos, r
 
 Use the **Outfits** tab to combine your pieces, choose School, Hiking or Gym, save and compare looks, and generate modeled photos with your ChatGPT-authenticated Codex. See [the outfit studio guide](docs/OUTFIT_STUDIO.md).
 
+Use **Taste** to identify your wardrobe's styles, palettes and useful combinations, then research specific products within a per-item budget using your signed-in Codex allowance. See [the Taste guide](docs/TASTE.md).
+
 Copied from upstream commit `f44006cce7e4779e595a35b25fbbc8dabc68d7e4`. This copy defaults to Codex imports using your ChatGPT plan allowance. No API key is required. The original project documentation follows; its browser/API instructions only apply if you explicitly set `WARDROBE_IMPORT_MODE=api`.
 
 ---

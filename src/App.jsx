@@ -3,9 +3,12 @@ import { Check, Plus, Trash, X } from "@phosphor-icons/react";
 import { WardrobeImportFlow } from "./import-flow.jsx";
 import { OptimizedImage } from "./OptimizedImage.jsx";
 import { OutfitStudio } from "./OutfitStudio.jsx";
+import { TasteStudio } from "./TasteStudio.jsx";
 
 const STORAGE_KEY = "open-wardrobe-edits-v1";
 const DELETED_STORAGE_KEY = "open-wardrobe-deleted-v1";
+const COLLECTION_PAGES = [{ id: "wardrobe", label: "Wardrobe" }, { id: "outfits", label: "Outfits" }, { id: "taste", label: "Taste" }];
+const pageFromHash = () => COLLECTION_PAGES.find((page) => window.location.hash === `#${page.id}`)?.id || "wardrobe";
 
 const TYPES = [
   { id: "all", label: "All" },
@@ -536,7 +539,7 @@ function ItemViewer({ item, onClose, onSave, onDelete }) {
 }
 
 export function App() {
-  const [activePage, setActivePage] = useState(() => window.location.hash === "#outfits" ? "outfits" : "wardrobe");
+  const [activePage, setActivePage] = useState(pageFromHash);
   const [items, setItems] = useState([]);
   const [activeType, setActiveType] = useState("all");
   const [selectedId, setSelectedId] = useState(null);
@@ -544,38 +547,32 @@ export function App() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    const onHashChange = () => { setActivePage(window.location.hash === "#outfits" ? "outfits" : "wardrobe"); setSelectedId(null); };
+    const onHashChange = () => { setActivePage(pageFromHash()); setSelectedId(null); };
     window.addEventListener("hashchange", onHashChange);
     return () => window.removeEventListener("hashchange", onHashChange);
   }, []);
 
   const changePage = (page) => {
     setActivePage(page); setSelectedId(null);
-    window.history.replaceState(null, "", page === "outfits" ? "#outfits" : "#wardrobe");
+    window.history.replaceState(null, "", `#${page}`);
   };
 
   const navigateTabs = (event) => {
     if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
     event.preventDefault();
-    const page = event.key === "Home" ? "wardrobe" : event.key === "End" ? "outfits" : activePage === "wardrobe" ? "outfits" : "wardrobe";
+    const index = COLLECTION_PAGES.findIndex((page) => page.id === activePage);
+    const page = COLLECTION_PAGES[event.key === "Home" ? 0 : event.key === "End" ? COLLECTION_PAGES.length - 1 : (index + (event.key === "ArrowRight" ? 1 : -1) + COLLECTION_PAGES.length) % COLLECTION_PAGES.length].id;
     changePage(page); document.getElementById(`${page}-tab`)?.focus();
   };
 
-  useEffect(() => {
-    fetch("/api/import/wardrobe", { cache: "no-store" })
-      .then((response) => {
-        if (!response.ok) throw new Error("Could not load the wardrobe.");
-        return response.json();
-      })
-      .then((loadedItems) => {
-        const edits = readEdits();
-        const deleted = readDeletedItems();
-        const visibleItems = loadedItems.filter((item) => !deleted.has(item.id));
-        setItems(visibleItems.map((item) => ({ ...item, ...(edits[item.id] || {}) })));
-      })
-      .catch((requestError) => setError(requestError.message))
-      .finally(() => setLoading(false));
+  const refreshWardrobe = useCallback(async () => {
+    const response = await fetch("/api/import/wardrobe", { cache: "no-store" });
+    if (!response.ok) throw new Error("Could not load the wardrobe.");
+    const loadedItems = await response.json(), edits = readEdits(), deleted = readDeletedItems();
+    const visibleItems = loadedItems.filter((item) => !deleted.has(item.id)).map((item) => ({ ...item, ...(edits[item.id] || {}) }));
+    setItems(visibleItems); return visibleItems;
   }, []);
+  useEffect(() => { refreshWardrobe().catch((e) => setError(e.message)).finally(() => setLoading(false)); }, [refreshWardrobe]);
 
   const selectedItem = items.find((item) => item.id === selectedId) || null;
 
@@ -632,7 +629,7 @@ export function App() {
           <div className="gallery-meta-row">
             <p className="piece-count">{items.length} {items.length === 1 ? "piece" : "pieces"}</p>
             <div className="collection-tabs" role="tablist" aria-label="Your collection" onKeyDown={navigateTabs}>
-              {[{ id: "wardrobe", label: "Wardrobe" }, { id: "outfits", label: "Outfits" }].map((page) => <button key={page.id} type="button" role="tab" id={`${page.id}-tab`} aria-selected={activePage === page.id} aria-controls={`${page.id}-panel`} tabIndex={activePage === page.id ? 0 : -1} onClick={() => changePage(page.id)}>{page.label}</button>)}
+              {COLLECTION_PAGES.map((page) => <button key={page.id} type="button" role="tab" id={`${page.id}-tab`} aria-selected={activePage === page.id} aria-controls={`${page.id}-panel`} tabIndex={activePage === page.id ? 0 : -1} onClick={() => changePage(page.id)}>{page.label}</button>)}
             </div>
           </div>
           {activePage === "wardrobe" && <nav className="category-nav" aria-label="Filter wardrobe by item type">
@@ -670,6 +667,9 @@ export function App() {
         </div>
         <div id="outfits-panel" role="tabpanel" aria-labelledby="outfits-tab" hidden={activePage !== "outfits"}>
           {!loading && !error && <OutfitStudio items={items} active={activePage === "outfits"} />}
+        </div>
+        <div id="taste-panel" role="tabpanel" aria-labelledby="taste-tab" hidden={activePage !== "taste"}>
+          {!loading && !error && <TasteStudio items={items} active={activePage === "taste"} refreshWardrobe={refreshWardrobe} />}
         </div>
       </main>
 

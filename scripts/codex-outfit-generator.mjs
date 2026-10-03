@@ -1,10 +1,9 @@
-import { spawn, execFile } from "node:child_process";
-import { promisify } from "node:util";
+import { spawn } from "node:child_process";
 import { appendFile } from "node:fs/promises";
 import path from "node:path";
+import { CHATGPT_CONFIG, codexEnvironment, createCodexConfiguration } from "./codex-session.mjs";
+export { codexEnvironment } from "./codex-session.mjs";
 
-const execute = promisify(execFile);
-const CHATGPT_CONFIG = ["-c", 'model_provider="openai"', "-c", 'forced_login_method="chatgpt"'];
 const fail = (message, status = 503) => { throw Object.assign(new Error(message), { status }); };
 
 function generationFailure(entry, spawnError, code, diagnostic) {
@@ -18,39 +17,13 @@ function generationFailure(entry, spawnError, code, diagnostic) {
   return { errorCode: "no-preview", message: "Codex finished without attaching a photo. Open the request in Codex or try again." };
 }
 
-export function codexEnvironment(source = process.env) {
-  const env = { ...source };
-  // This runner uses ChatGPT sign-in even when the optional importer has an API key.
-  delete env.OPENAI_API_KEY;
-  delete env.CODEX_API_KEY;
-  delete env.CODEX_THREAD_ID;
-  return env;
-}
-
 export function createCodexOutfitGenerator(store, options = {}) {
   const command = options.command || process.env.WARDROBE_CODEX_COMMAND || "codex";
   const env = codexEnvironment(options.env || process.env);
-  const runCommand = options.execute || execute, spawnProcess = options.spawn || spawn;
+  const spawnProcess = options.spawn || spawn;
   const alive = options.alive || ((pid) => { try { process.kill(pid, 0); return true; } catch { return false; } });
-  let readiness = null, expires = 0, active = null, closed = false;
-
-  async function configuration() {
-    if (!readiness || Date.now() > expires) {
-      expires = Date.now() + 30000;
-      readiness = (async () => {
-        try {
-          const auth = await runCommand(command, [...CHATGPT_CONFIG, "login", "status"], { env, timeout: 15000, maxBuffer: 128 * 1024 });
-          if (!/Logged in using ChatGPT/i.test(`${auth.stdout}\n${auth.stderr}`)) return { available: false, reason: "Sign in to Codex with your ChatGPT account on this Mac, then refresh." };
-          const features = await runCommand(command, [...CHATGPT_CONFIG, "features", "list"], { env, timeout: 15000, maxBuffer: 128 * 1024 });
-          if (!/^image_generation\s+\S+\s+true\s*$/m.test(features.stdout)) return { available: false, reason: "Built-in image generation is not enabled in this Codex installation. You can use the request in your Codex chat." };
-          return { available: true, billing: "chatgpt", reason: null };
-        } catch {
-          return { available: false, reason: "Codex is not ready on this Mac. Sign in with ChatGPT, or open the prepared request in the Codex app." };
-        }
-      })();
-    }
-    return readiness;
-  }
+  let active = null, closed = false;
+  const configuration = createCodexConfiguration({ command, env, runCommand: options.execute, requireImages: true });
 
   async function reconcile() {
     const state = await store.getState();

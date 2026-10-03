@@ -142,7 +142,7 @@ test("concurrent saves retain every look and invalid mutations leave saved data 
   const { store } = await fixture(t);
   const looks = await Promise.all(Array.from({ length: 12 }, (_, i) => store.saveLook(draft({ name: `Look ${i}` }))));
   assert.equal(new Set(looks.map(({ id }) => id)).size, 12);
-  await rejected(store.saveLook(draft({ context: { background: "unknown" } })), /school, hiking or gym/);
+  await rejected(store.saveLook(draft({ context: { background: "unknown" } })), /school, hiking, gym or beach/);
   await rejected(store.saveLook(draft(), "../../library.json"), /Invalid saved outfit/);
   await rejected(store.attachPreview("../../library.json", await png()), /Invalid outfit request/);
   assert.equal((await store.getState()).looks.length, 12);

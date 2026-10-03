@@ -10,6 +10,7 @@ export const OUTFIT_SETTINGS = [
   { id: "school", name: "School", description: "A quiet campus courtyard", scene: "a quiet school campus courtyard with warm stone buildings and restrained greenery" },
   { id: "hiking", name: "Hiking", description: "An open trail and natural scenery", scene: "an outdoor hiking trail with natural trees, low hills and an unobstructed foreground" },
   { id: "gym", name: "Gym", description: "A clean, understated training space", scene: "a clean indoor gym with unobtrusive equipment in the distance and open floor space" },
+  { id: "beach", name: "Beach", description: "A sandy shore and ocean views", scene: "a quiet sandy beach with gentle ocean waves, a clear shoreline and an unobstructed foreground" },
 ];
 
 export const STYLE_OPTIONS = {
@@ -19,7 +20,7 @@ export const STYLE_OPTIONS = {
   sleeves: [["natural", "As photographed"], ["down", "Sleeves down"], ["rolled", "Long sleeves rolled up"]],
   jacket: [["natural", "As photographed"], ["open", "Open"], ["closed", "Closed"]],
   light: [["daylight", "Soft daylight"], ["golden-hour", "Golden hour"], ["evening", "Evening light"]],
-  weather: [["mild", "Mild"], ["warm", "Warm"], ["cool", "Cool"], ["overcast", "Overcast"]],
+  weather: [["mild", "Mild"], ["warm", "Warm"], ["cool", "Cool"], ["overcast", "Overcast"], ["snowy", "Snowy"], ["rainy-umbrella", "Rain with umbrella"]],
 };
 
 export const DEFAULT_PREFERENCES = { framing: "square", pose: "relaxed", tuck: "natural", sleeves: "natural", jacket: "natural", styleNotes: "" };
@@ -33,7 +34,7 @@ export function normalizeContext(value = {}) {
   if (!value || typeof value !== "object" || Array.isArray(value)) invalid("Choose an outfit setting.");
   const context = { ...DEFAULT_CONTEXT };
   if (value.background !== undefined) {
-    if (!OUTFIT_SETTINGS.some(({ id }) => id === value.background)) invalid("Choose school, hiking or gym.");
+    if (!OUTFIT_SETTINGS.some(({ id }) => id === value.background)) invalid("Choose school, hiking, gym or beach.");
     context.background = value.background;
   }
   for (const [key, choices] of Object.entries(STYLE_OPTIONS)) {

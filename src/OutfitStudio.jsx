@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ArrowCounterClockwise, BookmarkSimple, Check, Copy, GraduationCap, Mountains, Barbell, Plus, Sparkle, Star, Trash, UploadSimple, X } from "@phosphor-icons/react";
+import { ArrowCounterClockwise, BookmarkSimple, Check, Copy, GraduationCap, Mountains, Barbell, Waves, Plus, Sparkle, Star, Trash, UploadSimple, X } from "@phosphor-icons/react";
 import { OptimizedImage } from "./OptimizedImage.jsx";
 import { DEFAULT_CONTEXT, DEFAULT_PREFERENCES, OUTFIT_SETTINGS, OUTFIT_SLOTS, STYLE_OPTIONS, emptySelection, missingRequired, normalizeContext, outfitFingerprint } from "./outfit-model.mjs";
 import "./outfit-studio.css";
 
 const API = "/api/outfit-studio", DRAFT_KEY = "open-wardrobe-outfit-draft-v1";
-const SCENE_ICONS = { school: GraduationCap, hiking: Mountains, gym: Barbell };
+const SCENE_ICONS = { school: GraduationCap, hiking: Mountains, gym: Barbell, beach: Waves };
 const newDraft = (preferences = {}) => ({ lookId: null, name: "", selection: emptySelection(), context: { ...DEFAULT_CONTEXT, ...preferences }, favorite: false });
 function readDraft() {
   try {

@@ -212,8 +212,8 @@ test("Codex runner uses ChatGPT authentication, removes API keys and deduplicate
   assert.equal(options.env.CODEX_API_KEY, undefined);
   assert.equal(options.env.CODEX_THREAD_ID, undefined);
   assert.ok(args.includes('forced_login_method="chatgpt"'));
-  assert.ok(args.includes("workspace-write"));
   assert.ok(args.includes("--approve-for-me"));
+  assert.ok(!args.includes("--sandbox"), "--approve-for-me already selects workspace-write and rejects an explicit --sandbox.");
   assert.equal(args.filter((argument) => argument === "--image").length, 5);
   assert.match(child.prompt, /Use only the built-in image generation tool/);
   assert.match(child.prompt, /Do not use an API-key/);
@@ -237,6 +237,26 @@ test("Codex runner refuses API-key sign-in or disabled built-in image generation
     assert.equal(fake.children.length, 0);
     await runner.close();
   }
+});
+
+test("CLI startup errors explain the actual failure and clear on retry", async (t) => {
+  const { store } = await fixture(t), fake = fakeCodex(), runner = createCodexOutfitGenerator(store, fake);
+  t.after(() => runner.close());
+  const look = await store.saveLook(draft()), request = await store.prepareRequest(look.id);
+  await runner.start(request.id);
+  fake.children[0].child.stderr.write("error: the argument '--sandbox <SANDBOX_MODE>' cannot be used with '");
+  fake.children[0].child.stderr.write("--approve-for-me'\nUsage: codex exec [OPTIONS]\n");
+  fake.children[0].child.emit("close", 2); await runner.idle();
+  const failure = (await store.request(request.id)).generation;
+  assert.equal(failure.errorCode, "launch-options");
+  assert.equal(failure.exitCode, 2);
+  assert.match(failure.message, /--sandbox.*conflicts with --approve-for-me/);
+  assert.doesNotMatch(failure.message, /sign-in|usage limits|Usage:/);
+  await runner.start(request.id);
+  const retry = (await store.request(request.id)).generation;
+  assert.equal(retry.status, "running");
+  assert.equal(retry.errorCode, null);
+  assert.equal(retry.exitCode, null);
 });
 
 test("runner failures require explicit retry and stale processes become actionable errors", async (t) => {

@@ -94,7 +94,7 @@
 .outfit-handoff { border-top: 1px solid var(--line); padding-top: 20px; margin-top: 20px; }
 .outfit-handoff p { margin: 10px 0 12px; font-size: 12px; color: var(--muted); line-height: 1.7; }
 .outfit-handoff textarea { min-height: 110px; font-size: 11px; margin-bottom: 10px; }
-.outfit-upload { margin-top: 14px; }
+.outfit-manual-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 18px; margin-top: 14px; }
 .outfit-message { display: flex; align-items: center; gap: 16px; justify-content: space-between; border: 1px solid var(--line); padding: 14px 18px; margin-bottom: 22px; font-size: 13px; line-height: 1.6; }
 .outfit-loading { padding: 30px 0; font-size: 14px; color: var(--muted); }
 .outfit-saved { margin-top: 50px; padding-top: 28px; border-top: 1px solid var(--line); }

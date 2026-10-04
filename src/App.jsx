@@ -7,7 +7,7 @@ import { TasteStudio } from "./TasteStudio.jsx";
 
 const STORAGE_KEY = "open-wardrobe-edits-v1";
 const DELETED_STORAGE_KEY = "open-wardrobe-deleted-v1";
-const COLLECTION_PAGES = [{ id: "wardrobe", label: "Wardrobe" }, { id: "outfits", label: "Outfits" }, { id: "taste", label: "Taste" }, { id: "color-language", label: "Color language" }];
+const COLLECTION_PAGES = [{ id: "wardrobe", label: "Wardrobe" }, { id: "outfits", label: "Outfits" }, { id: "taste", label: "Taste" }, { id: "recommendations", label: "Recommendations" }, { id: "color-language", label: "Color language" }];
 const pageFromHash = () => COLLECTION_PAGES.find((page) => window.location.hash === `#${page.id}`)?.id || "wardrobe";
 
 const TYPES = [
@@ -668,7 +668,7 @@ export function App() {
         <div id="outfits-panel" role="tabpanel" aria-labelledby="outfits-tab" hidden={activePage !== "outfits"}>
           {!loading && !error && <OutfitStudio items={items} active={activePage === "outfits"} />}
         </div>
-        {!loading && !error && <TasteStudio items={items} active={activePage === "taste" || activePage === "color-language"} page={activePage} refreshWardrobe={refreshWardrobe} />}
+        {!loading && !error && <TasteStudio items={items} active={["taste", "recommendations", "color-language"].includes(activePage)} page={activePage} refreshWardrobe={refreshWardrobe} />}
       </main>
 
       {selectedItem && <ItemViewer item={selectedItem} onClose={() => setSelectedId(null)} onSave={saveItem} onDelete={deleteItem} />}

@@ -155,3 +155,53 @@ test("Taste HTTP routes do not launch on read and reject remote, cross-origin or
   const job = await store.job(result.body.job.id); await finish(runner, fake, profile(job));
   assert.equal((await call(handler, "GET", "/api/taste")).body.analysis.result.styles[0].name, "Casual sportswear");
 });
+
+
+test("Find recommendations refreshes style first, then automatically researches with the new profile", async (t) => {
+  const { store, items } = await fixture(t), fake = fakeCodex(), runner = createCodexTasteRunner(store, fake);
+  const handler = createTasteHandler(store, runner); t.after(() => runner.close());
+  const previous = await store.prepare("analysis", TASTE_DEFAULTS);
+  await store.accept(previous.id, profile(previous));
+  const input = { preferences: { ...TASTE_DEFAULTS, maxPrice: 200 }, wardrobe: wardrobeView(items) };
+  const requested = await call(handler, "POST", "/api/taste/recommend", input);
+  assert.equal(requested.status, 202);
+  assert.equal(requested.body.job.kind, "analysis");
+  assert.equal(requested.body.job.recommendAfter, true);
+  assert.notEqual(requested.body.job.id, previous.id);
+  assert.equal(requested.body.analysis.id, previous.id);
+  assert.equal(fake.children.length, 1);
+  assert.equal((await call(handler, "POST", "/api/taste/recommend", input)).body.job.id, requested.body.job.id);
+  const analysis = await store.job(requested.body.job.id);
+  const refreshed = { ...profile(analysis), summary: "A freshly identified style." };
+  await finish(runner, fake, refreshed);
+
+  const researching = await store.getState();
+  assert.equal(researching.job.kind, "shopping");
+  assert.equal(researching.job.status, "running");
+  assert.equal(fake.children.length, 2);
+  const shopping = await store.job(researching.job.id);
+  assert.equal(shopping.analysisId, analysis.id);
+  assert.deepEqual(shopping.preferences, input.preferences);
+  assert.deepEqual(shopping.references, []);
+  const brief = JSON.parse(await readFile(path.join(store.jobDir(shopping.id), "brief.json")));
+  assert.deepEqual(brief.analysis, refreshed);
+  await finish(runner, fake, products(shopping), true);
+
+  const after = (await call(handler, "GET", "/api/taste")).body;
+  assert.equal(after.analysis.id, analysis.id);
+  assert.equal(after.shopping.result.recommendations.length, 1);
+  assert.equal(fake.children.length, 2);
+});
+
+test("a failed automatic style refresh does not start recommendation research", async (t) => {
+  const { store, items } = await fixture(t), fake = fakeCodex(), runner = createCodexTasteRunner(store, fake);
+  const handler = createTasteHandler(store, runner); t.after(() => runner.close());
+  const response = await call(handler, "POST", "/api/taste/recommend", { preferences: TASTE_DEFAULTS, wardrobe: wardrobeView(items) });
+  fake.children[0].child.emit("close", 1); await runner.idle();
+  const state = await store.getState();
+  assert.equal(state.job.id, response.body.job.id);
+  assert.equal(state.job.status, "failed");
+  assert.equal(state.job.recommendAfter, true);
+  assert.equal(state.shopping, null);
+  assert.equal(fake.children.length, 1);
+});

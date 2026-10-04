@@ -95,7 +95,7 @@ export function createTasteStore(root) {
     await writes;
     const state = await load(), current = await inventory();
     const [analysis, shopping, latest] = await Promise.all([state.analysisId, state.shoppingId, state.latestJobId].map((id) => id ? job(id) : null));
-    return { preferences: state.preferences, wardrobe: current.items, analysis: analysis ? { id: analysis.id, completedAt: analysis.finishedAt, wardrobe: analysis.wardrobe, viewKey: analysis.viewKey, result: analysis.result } : null, shopping: shopping ? { id: shopping.id, completedAt: shopping.finishedAt, preferences: shopping.preferences, result: shopping.result } : null, analysisStale: Boolean(analysis && analysis.fingerprint !== current.fingerprint), shoppingStale: Boolean(shopping && (shopping.fingerprint !== current.fingerprint || shopping.analysisId !== state.analysisId || tastePreferenceKey(shopping.preferences) !== tastePreferenceKey(state.preferences))), job: latest ? { id: latest.id, kind: latest.kind, status: latest.status, message: latest.message, pid: latest.pid, startedAt: latest.startedAt } : null };
+    return { preferences: state.preferences, wardrobe: current.items, analysis: analysis ? { id: analysis.id, completedAt: analysis.finishedAt, wardrobe: analysis.wardrobe, viewKey: analysis.viewKey, result: analysis.result } : null, shopping: shopping ? { id: shopping.id, completedAt: shopping.finishedAt, preferences: shopping.preferences, result: shopping.result } : null, analysisStale: Boolean(analysis && analysis.fingerprint !== current.fingerprint), shoppingStale: Boolean(shopping && (shopping.fingerprint !== current.fingerprint || shopping.analysisId !== state.analysisId || tastePreferenceKey(shopping.preferences) !== tastePreferenceKey(state.preferences))), job: latest ? { id: latest.id, kind: latest.kind, recommendAfter: Boolean(latest.recommendAfter), status: latest.status, message: latest.message, pid: latest.pid, startedAt: latest.startedAt } : null };
   }
   async function boards(items, dir) {
     const pages = [];
@@ -121,14 +121,14 @@ export function createTasteStore(root) {
   }
   return {
     root, job, jobDir, getState,
-    prepare: (kind, preferences, view = null) => mutate(async () => {
+    prepare: (kind, preferences, view = null, recommendAfter = false) => mutate(async () => {
       if (!["analysis", "shopping"].includes(kind)) fail("Choose analysis or recommendations.");
       const prefs = normalizeTastePreferences(preferences), state = await load(), current = await inventory();
       if (!current.items.length) fail("Add clothes to your wardrobe before identifying your taste.");
       if (state.latestJobId) {
         const latest = await job(state.latestJobId);
         if (["pending", "running"].includes(latest.status)) {
-          if (latest.kind === kind && tastePreferenceKey(latest.preferences) === tastePreferenceKey(prefs)) return latest;
+          if (latest.kind === kind && Boolean(latest.recommendAfter) === recommendAfter && tastePreferenceKey(latest.preferences) === tastePreferenceKey(prefs)) return latest;
           fail("Taste is already working on a request. Wait for it to finish.", 409);
         }
       }
@@ -150,7 +150,7 @@ export function createTasteStore(root) {
       const brief = { kind, preferences: prefs, wardrobe: items, analysis: kind === "shopping" ? analysis.result : null, requestedAt: new Date().toISOString() };
       await atomicJson(path.join(dir, "brief.json"), brief);
       await atomicJson(path.join(dir, "schema.json"), kind === "analysis" ? ANALYSIS_SCHEMA : SHOPPING_SCHEMA);
-      const value = { version: 1, id, kind, status: "pending", message: "Preparing your request…", createdAt: brief.requestedAt, fingerprint: current.fingerprint, viewKey: tasteViewKey(items), wardrobe: items, preferences: prefs, references, analysisId: kind === "shopping" ? analysis.id : null, pid: null, result: null };
+      const value = { version: 1, id, kind, recommendAfter, status: "pending", message: "Preparing your request…", createdAt: brief.requestedAt, fingerprint: current.fingerprint, viewKey: tasteViewKey(items), wardrobe: items, preferences: prefs, references, analysisId: kind === "shopping" ? analysis.id : null, pid: null, result: null };
       await atomicJson(path.join(dir, "request.json"), value);
       state.preferences = prefs; state.latestJobId = id;
       await atomicJson(file, state);

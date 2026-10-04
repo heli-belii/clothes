@@ -65,15 +65,20 @@ export function createCodexTasteRunner(store, options = {}) {
         let result;
         try { result = JSON.parse(await readFile(path.join(dir, "result.json"), "utf8")); } catch { fail("Codex finished without a readable Taste result. Retry your request."); }
         await store.accept(job.id, result);
+        if (job.kind === "analysis" && job.recommendAfter) {
+          const shopping = await store.prepare("shopping", job.preferences, job.wardrobe);
+          if (active === entry) active = null;
+          await runner.start(shopping.id);
+        }
       } catch (error) { await logLine(error.message); await store.updateJob(job.id, { status: "failed", message: error.status ? error.message : "The Taste result could not be saved. Retry your request.", exitCode: code, finishedAt: new Date().toISOString(), pid: null }).catch(() => {}); }
       finally { if (active === entry) active = null; resolve(); }
     }));
-    await store.updateJob(job.id, { status: "running", message: job.kind === "analysis" ? "Codex is inspecting your wardrobe and identifying your style…" : "Codex is researching products, prices and outfit pairings…", startedAt: new Date().toISOString(), finishedAt: null, pid: child.pid || null });
+    await store.updateJob(job.id, { status: "running", message: job.kind === "analysis" && job.recommendAfter ? "Refreshing your style before finding recommendations…" : job.kind === "analysis" ? "Codex is inspecting your wardrobe and identifying your style…" : "Codex is researching products, prices and outfit pairings…", startedAt: new Date().toISOString(), finishedAt: null, pid: child.pid || null });
     entry.timer = setTimeout(() => { entry.cancelled = true; child.kill("SIGTERM"); }, options.timeoutMs || 15 * 60 * 1000); entry.timer.unref?.();
     child.stdin.end(tastePrompt(job, store.root, dir));
     return store.job(job.id);
   }
-  return {
+  const runner = {
     configuration, reconcile,
     start(id) {
       if (active) return active.id === id ? active.started : Promise.reject(Object.assign(new Error("Taste is already working. Wait for it to finish."), { status: 409 }));
@@ -84,4 +89,5 @@ export function createCodexTasteRunner(store, options = {}) {
     async idle() { const entry = active; if (entry) { await entry.started.catch(() => {}); await entry.finished; } },
     async close() { closed = true; const entry = active; if (!entry) return; entry.cancelled = true; entry.child?.kill("SIGTERM"); await entry.started.catch(() => {}); entry.child?.kill("SIGTERM"); await entry.finished; },
   };
+  return runner;
 }

@@ -27,7 +27,7 @@ export function createTasteHandler(store, runner) {
         const input = await body(req), config = await runner.configuration();
         if (!config.available) return json(res, 503, { error: config.reason });
         await runner.reconcile();
-        const job = await store.prepare(route.endsWith("analyze") ? "analysis" : "shopping", input.preferences, input.wardrobe ?? null);
+        const job = await store.prepare("analysis", input.preferences, input.wardrobe ?? null, route.endsWith("recommend"));
         await runner.start(job.id);
         return json(res, 202, await store.getState());
       }

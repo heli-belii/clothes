@@ -1,7 +1,6 @@
-## Future ideas to add onto this program:
+# Future ideas
 
-2. Upload my entire closet into the application
-3. Find a local server to host the website
-4. Add a functionality to identify my taste in clothes and my overall style
-5. Look for new clothing options to match t
-hose taste
+- Import the rest of the closet.
+- Explore private hosting with authentication and persistent storage.
+- Extend the style overview and color analysis.
+- Refine clothing recommendations as more wardrobe pieces are added.

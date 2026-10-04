@@ -1,84 +1,56 @@
 # Clothes — my wardrobe
 
-Personal copy of [tandpfun/wardrobe](https://github.com/tandpfun/wardrobe).
-See [the personal setup guide](docs/PERSONAL_SETUP.md) for adding your photos, running locally, customization, and hosting.
+A local wardrobe app for organizing clothes, creating outfits, understanding personal style, and finding new pieces that work with an existing collection.
 
-Use the **Outfits** tab to combine your pieces, choose School, Hiking or Gym, save and compare looks, and generate modeled photos with your ChatGPT-authenticated Codex. See [the outfit studio guide](docs/OUTFIT_STUDIO.md).
+This project builds on **[Wardrobe](https://github.com/tandpfun/wardrobe) by [Thijs Simonian (@tandpfun)](https://github.com/tandpfun)**. Thank you, Thijs, for creating and sharing the original app. The starting source was copied from upstream commit [`f44006cce7e4779e595a35b25fbbc8dabc68d7e4`](https://github.com/tandpfun/wardrobe/tree/f44006cce7e4779e595a35b25fbbc8dabc68d7e4). This version adds personal setup instructions, an outfit studio, style and color analysis, and shopping recommendations. The original MIT copyright and license are preserved in [LICENSE](LICENSE), alongside the copyright for this version's additions.
 
-Use **Taste** to identify your wardrobe's styles, palettes and useful combinations, then research specific products within a per-item budget using your signed-in Codex allowance. See [the Taste guide](docs/TASTE.md).
+## Get started
 
-Copied from upstream commit `f44006cce7e4779e595a35b25fbbc8dabc68d7e4`. This copy defaults to Codex imports using your ChatGPT plan allowance. No API key is required. The original project documentation follows; its browser/API instructions only apply if you explicitly set `WARDROBE_IMPORT_MODE=api`.
+Use Node.js 22 or newer and npm.
 
----
-
-<div align="center">
-
-# Wardrobe
-
-Your clothes, extracted and organized with gpt-image.
-
-[![License: MIT](https://img.shields.io/badge/license-MIT-191919?style=flat-square)](LICENSE)
-[![Node 22+](https://img.shields.io/badge/node-22%2B-191919?style=flat-square)](package.json)
-
-[See the original post →](https://x.com/cdngdev/status/2076812846793650485)
-
-</div>
-
-![Wardrobe gallery](docs/screenshots/gallery.png)
-
-![Modeled wardrobe editor](docs/screenshots/editor.png)
-
-## Quick start
-
-```bash
-git clone https://github.com/tandpfun/wardrobe.git
-cd wardrobe
-npm install
+```sh
+git clone https://github.com/heli-belii/clothes.git
+cd clothes
+npm ci
 cp .env.example .env
-npm run dev
+mkdir -p data
+npm run dev -- --host 127.0.0.1
 ```
 
-⚠️ The importer stays disabled until you add `OPENAI_API_KEY` to `.env` and place a PNG reference photo of yourself at `data/model-reference.png`.
+Open the local address printed by Vite, normally [localhost:5173](http://localhost:5173). A fresh checkout starts with an empty wardrobe. Keep the server running while using the app.
 
-Open [localhost:5173](http://localhost:5173).
+Imports default to `WARDROBE_IMPORT_MODE=codex`; no API key is required for this mode. Open the project in Codex, provide your own clothing photos and identity references, and use the bundled [import-clothes skill](.agents/skills/import-clothes/SKILL.md). The optional browser importer uses separately billed API calls and must be enabled explicitly. See [the setup guide](docs/PERSONAL_SETUP.md) for both workflows.
 
-## Import with Codex
+## Explore your wardrobe
 
-This repo includes two Codex skills: one imports clothes and generates modeled item photos; the other styles complete outfits and generates a modeled lookbook.
+- **Wardrobe:** Browse imported clothes and edit their details.
+- **Outfits:** Combine owned pieces, save and compare looks, and generate modeled previews. See [the outfit studio guide](docs/OUTFIT_STUDIO.md).
+- **Taste:** View your style profile and the clothing that supports it.
+- **Recommendations:** Set a budget and shopping preferences, then click **Find recommendations**. The app refreshes your style first and automatically researches matching products. Preferences and saved responses stay in this tab.
+- **Color language:** Explore your wardrobe palette and combinations of owned clothes. See [the Taste guide](docs/TASTE.md).
 
-```text
-$import-clothes Import the clothes from ~/Pictures/outfits, create modeled photos, and add them to this wardrobe.
-$generate-outfits Create modeled outfit ideas from my wardrobe.
+The local outfit, style, and shopping runners use Codex signed in with ChatGPT. Modeled photos require your own identity references; this repository does not include them.
+
+## Keep personal files private
+
+Store original photos, identity references, cutouts, modeled images, wardrobe records, and generated results inside `data/`. Keep credentials in `.env`. Both are Git-ignored. Common photo and video formats are also ignored outside `data/` to help catch accidental additions. The only allowed tracked photos are the two unchanged public screenshots from the original project.
+
+```sh
+npm run check
 ```
 
-Open the cloned repo in Codex and run either prompt. The import skill asks for a local model-reference PNG when needed, reviews every cutout and modeled photo, then writes to `data/library.json` and `data/imported/`. The outfit skill asks how many looks to create, then curates, generates, verifies, and saves the complete collection under `data/`.
+This checks tracked working files, staged files, and available Git history for private paths, unreviewed media, and recognized secret patterns, then runs the tests and production build. CI fetches the full history and runs the same checks. The privacy check is a guard rather than a complete secret scanner; review changes before committing and never force-add personal files. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
-### For agents
+Making the source repository public does not publish your ignored local wardrobe. Running the app as a public website is a separate task: the current app has no user authentication and should run on localhost with personal data. See [hosting notes](docs/PERSONAL_SETUP.md#build-and-hosting).
 
-If you are setting up Wardrobe for a user, ask how they want to import their clothes:
+## Original project screenshots
 
-- **Codex:** Ask for a folder or camera-roll location and a model-reference PNG, then extract, model, and import the individual pieces by following [the bundled import skill](.agents/skills/import-clothes/SKILL.md). Afterward, offer to create a requested number of modeled looks with [the outfit-generation skill](.agents/skills/generate-outfits/SKILL.md).
-- **Web UI:** Help the user configure their own `OPENAI_API_KEY` and `data/model-reference.png`, then let them import through the app.
+These are unchanged screenshots from [tandpfun/wardrobe](https://github.com/tandpfun/wardrobe), not this copy's personal wardrobe or the latest interface.
 
-## What it does
+![Original Wardrobe gallery](docs/screenshots/gallery.png)
 
-- Detects every garment in a photo with the OpenAI Responses API
-- Extracts clean product cutouts with the OpenAI Images API
-- Generates an optional modeled editorial preview
-- Keeps originals, jobs, generated images, and the JSON database local in `data/`
-- Supports drag, drop, paste, editing, review, regeneration, and approval
-
-## Configuration
-
-| Variable | Default |
-| --- | --- |
-| `OPENAI_API_KEY` | Required |
-| `OPENAI_VISION_MODEL` | `gpt-5.4-mini` |
-| `OPENAI_IMAGE_MODEL` | `gpt-image-2` |
-| `OPENAI_IMAGE_QUALITY` | `high` |
-| `WARDROBE_MODEL_REFERENCE` | `data/model-reference.png` |
-| `WARDROBE_DATA_DIR` | `data` |
+![Original Wardrobe modeled editor](docs/screenshots/editor.png)
 
 ## License
 
-[MIT](LICENSE)
+[MIT](LICENSE). Original project: [Wardrobe](https://github.com/tandpfun/wardrobe), by [Thijs Simonian](https://github.com/tandpfun). [Original announcement](https://x.com/cdngdev/status/2076812846793650485).

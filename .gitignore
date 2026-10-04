@@ -6,3 +6,31 @@ dist/
 !.env.example
 *.log
 data/
+
+# Keep personal media private even when accidentally placed outside data/.
+*.[pP][nN][gG]
+*.[jJ][pP][gG]
+*.[jJ][pP][eE][gG]
+*.[wW][eE][bB][pP]
+*.[hH][eE][iI][cC]
+*.[hH][eE][iI][fF]
+*.[gG][iI][fF]
+*.[aA][vV][iI][fF]
+*.[tT][iI][fF]
+*.[tT][iI][fF][fF]
+*.[mM][oO][vV]
+*.[mM][pP]4
+*.[dD][nN][gG]
+*.[bB][mM][pP]
+
+# These two public screenshots are copied unchanged from the original project.
+!docs/screenshots/gallery.png
+!docs/screenshots/editor.png
+
+# Local credentials and machine-specific configuration.
+.aws/
+.codex/
+*.pem
+*.key
+*.p12
+*.pfx

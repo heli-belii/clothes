@@ -1,6 +1,6 @@
 # Set up your personal clothes collection
 
-This repository contains all tracked files from [tandpfun/wardrobe](https://github.com/tandpfun/wardrobe), copied at commit `f44006cce7e4779e595a35b25fbbc8dabc68d7e4`. Your existing clothes Git history and `origin` remote are retained. The upstream MIT attribution is retained alongside your copyright notice. Thijs's personal wardrobe photos are not part of the upstream repository; the gallery starts empty.
+This project is based on [Wardrobe](https://github.com/tandpfun/wardrobe) by [Thijs Simonian (@tandpfun)](https://github.com/tandpfun), starting from commit `f44006cce7e4779e595a35b25fbbc8dabc68d7e4`. The upstream MIT attribution is retained alongside the copyright for this version's additions. No personal wardrobe database or identity references are supplied; a fresh checkout starts empty. The documentation screenshots are unchanged public examples from the original project.
 
 ## Run on your Mac
 
@@ -13,7 +13,7 @@ npm run dev -- --host 127.0.0.1
 
 Open the address printed by Vite, normally `http://localhost:5173`. Keep the terminal running. Stop it with Control-C. The explicit host flag limits access to this Mac; upstream's default binds to all network interfaces.
 
-A local `.env` file and `data/` directory have been created for this copy. On a fresh checkout, create them with:
+On a fresh checkout, create a local `.env` file and `data/` directory with:
 
 ```sh
 cp .env.example .env
@@ -122,7 +122,7 @@ Keep the package name `wardrobe` unless you also update the import script's repo
 
 Back up the entire `data/` folder separately. Browser edits are not written back to `library.json`, so a folder backup alone does not preserve subsequent name/color/tag edits made in the gallery. Keep a consistent browser and local URL; switching browser, port, or hostname can make those edits appear missing. Avoid clearing site storage if you want to retain them.
 
-`.env`, `data/`, `node_modules/`, and `dist/` are ignored by Git. Pushing the source repository will not upload your wardrobe, reference photo, or API key. Avoid putting personal photos in `public/`, which is tracked and served directly.
+`.env`, `data/`, `node_modules/`, and `dist/` are ignored by Git. Common photo/video formats are ignored outside `data/` as well, except the two unchanged public upstream screenshots. Keep personal photos out of `public/`, which the app serves directly. Never force-add private files: ignore rules do not protect files already committed. Run `npm run check:privacy` before publishing; it checks tracked files, the index, and available history without printing secret values. The check detects common secret patterns but cannot identify every possible credential.
 
 ## Build and hosting
 
@@ -131,18 +131,18 @@ npm run check
 npm run preview -- --host 127.0.0.1
 ```
 
-`check` builds the application into `dist/`; preview normally opens on `http://localhost:4173`. The preview server also attaches the local API middleware, so it can read the same `.env` and `data/` when run from this repository with dependencies installed.
+`check` runs the privacy audit, Taste and outfit tests, and builds the application into `dist/`; preview normally opens on `http://localhost:4173`. The preview server also attaches the local API middleware, so it can read the same `.env` and `data/` when run from this repository with dependencies installed.
 
 This project needs its Node server for the wardrobe API and image serving. Uploading only `dist/` to GitHub Pages or another static host does **not** provide a working wardrobe importer or library. Vite preview is useful for local verification, not a production deployment architecture.
 
 For a personal collection, running locally is sufficient. To make it available remotely, additional implementation is required: a production Node backend exposing the current API/image middleware, persistent private storage for `data/`, server-side environment secrets, authentication and authorization for the wardrobe and import endpoints, and HTTPS. The copied app has no user login or per-user storage. A shared public service would also need per-user data separation and upload/usage limits before exposing the API.
 
-The files have been copied locally. To publish the source to your existing GitHub repository after reviewing it:
+To publish your changes to your GitHub repository after reviewing them:
 
 ```sh
-git add .
-git commit -m "Import wardrobe app and personal setup guide"
-git push origin main
+npm run check
+git status --short
+git diff --cached
 ```
 
-Use your actual branch name if it differs from `main`.
+Stage only the intended source and documentation changes, inspect the staged diff, then commit and push to your chosen branch. Do not upload `data/` or `.env`, including through GitHub's browser upload interface. Making the repository public shares its committed history as well as its current files.

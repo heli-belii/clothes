@@ -2,10 +2,11 @@
 
 Open the Taste tab, or visit `http://127.0.0.1:5173/#taste` while `npm run dev` is running.
 
-1. Click **Identify my style**. Codex inspects numbered compilation pages containing every current clothing cutout. The profile includes supported style influences, a color palette, combinations of owned pieces, and suggested gaps in the imported collection.
-2. Set a per-item budget. The USD presets are $50, $100, $200 and $400; custom minimum and maximum prices and other currencies are available. Choose the shopping region, favorite shops, exploration preference and personal fit/material/size notes.
-3. Click **Find recommendations**. Codex researches live product pages, checks prices and availability, and explains the color and fit relationship to specific clothes you own. Results appear automatically and stay saved locally. Opening the tab and changing controls do not start AI requests.
-4. Click **Reload style** when clothes are added, removed, recategorized or edited. Taste checks the current wardrobe and cutouts, marks older results as outdated, and requires an updated profile before new recommendations. Existing results remain available during a refresh or if a request fails.
+1. In **Taste**, click **Identify my style** to inspect numbered compilation pages containing every current clothing cutout. This tab displays the style overview and supporting owned pieces.
+2. Open **Color language** to see the palette and combinations of owned clothes.
+3. Open **Recommendations** (`#recommendations`) and set a per-item budget. The USD presets are $50, $100, $200 and $400; custom minimum and maximum prices and other currencies are available. Choose the shopping region, favorite shops, exploration preference and personal fit/material/size notes.
+4. Click **Find recommendations**. The app automatically reloads your style first, then Codex researches live product pages, checks prices and availability, and explains the color and fit relationship to specific clothes you own. This also works before you have identified your style separately. Preferences and saved responses stay in Recommendations. The sequence continues when you switch tabs, provided the server stays running.
+5. Use **Reload style** in Taste or Color language when you only want to refresh the overview. Wardrobe changes mark earlier results as outdated. Existing results remain available during a refresh or if a request fails. Opening tabs and changing controls do not start AI requests.
 
 Default favorites are FILA, Abercrombie & Fitch, lululemon and Nike. Suggestions mostly follow the existing style with a few new ideas. These fields are editable. The default shopping region is the United States; change it if needed.
 

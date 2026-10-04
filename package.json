@@ -9,7 +9,9 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "check": "npm run build",
+    "check": "npm run check:privacy && npm run test:privacy && npm run test:taste && npm run test:outfits && npm run build",
+    "check:privacy": "node scripts/check-repo-privacy.mjs",
+    "test:privacy": "node --test tests/repo-privacy.test.mjs",
     "test:outfits": "node --test tests/outfit-studio.test.mjs",
     "test:taste": "node --test tests/taste.test.mjs"
   },

@@ -6,6 +6,7 @@ dist/
 !.env.example
 *.log
 data/
+AGENTS.local.md
 
 # Keep personal media private even when accidentally placed outside data/.
 *.[pP][nN][gG]

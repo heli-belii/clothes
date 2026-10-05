@@ -25,11 +25,12 @@ test("privacy audit allows source and an empty credential template", (t) => {
   assert.equal(run().status, 0);
 });
 
-test("privacy audit blocks staged personal data and env files", (t) => {
+test("privacy audit blocks staged personal data, local preferences and env files", (t) => {
   const { git, write, run } = fixture(t);
-  write("data/library.json", "[]"); write(".env", "SETTING=private\n"); git("add", "data/library.json", ".env");
+  write("data/library.json", "[]"); write(".env", "SETTING=private\n"); write("AGENTS.local.md", "Personal preferences\n");
+  git("add", "data/library.json", ".env", "AGENTS.local.md");
   const result = run(); assert.equal(result.status, 1);
-  assert.match(result.stderr, /data\/library.json/); assert.match(result.stderr, /private\/generated file/);
+  assert.match(result.stderr, /data\/library.json/); assert.match(result.stderr, /AGENTS\.local\.md/); assert.match(result.stderr, /private\/generated file/);
 });
 
 test("privacy audit detects photos renamed to a text extension", (t) => {

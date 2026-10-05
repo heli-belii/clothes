@@ -47,10 +47,24 @@ mkdir -p data
 npm run dev -- --host 127.0.0.1
 ```
 
-Open [localhost:5173](http://localhost:5173). Imports default to Codex; API imports are optional. [Setup and hosting](docs/PERSONAL_SETUP.md).
+Open [localhost:5173](http://localhost:5173). [Setup and hosting](docs/PERSONAL_SETUP.md).
+
+## AI usage
+
+I choose to use my ChatGPT-authenticated Codex usage for this version, rather than separately billed API calls. Keep `WARDROBE_IMPORT_MODE=codex` and sign in to Codex with ChatGPT. [Authentication](https://learn.chatgpt.com/docs/auth).
+
+For **API browser imports**, add your own [API key](https://developers.openai.com/api/docs/quickstart) to the ignored `.env` file:
+
+```dotenv
+WARDROBE_IMPORT_MODE=api
+OPENAI_API_KEY=your-api-key
+WARDROBE_MODEL_REFERENCE=data/model-reference.png
+```
+
+Provide a real PNG at that reference path and restart the server. API imports are billed separately; outfits, Taste, and recommendations still use Codex. [Full instructions](docs/PERSONAL_SETUP.md#optional-separately-billed-browser-imports).
 
 ## Privacy and checks
 
-Personal photos, wardrobe data, and generated assets stay in Git-ignored `data/`; credentials stay in `.env`. Only reviewed README screenshots are intentionally public.
+Personal photos, wardrobe data, and generated assets stay in Git-ignored `data/`; credentials stay in `.env`. Private agent preferences belong in `data/AGENTS.local.md`. Only reviewed README screenshots are intentionally public.
 
 Run `npm run check` for the privacy audit, tests, and build. [Contributing](CONTRIBUTING.md).

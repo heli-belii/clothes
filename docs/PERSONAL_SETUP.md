@@ -20,6 +20,10 @@ cp .env.example .env
 mkdir -p data
 ```
 
+## Private agent preferences
+
+The public `AGENTS.md` contains general instructions. Put your own reference-photo paths and wardrobe preferences in `data/AGENTS.local.md`; agents are instructed to read it before wardrobe tasks. This file, `data/model-reference.png`, and supplemental identity crops under `data/identity-references/` are Git-ignored. Do not put personal instructions into the public file.
+
 ## Default: import with your Codex allowance
 
 This copy defaults to `WARDROBE_IMPORT_MODE=codex`. The website provides an **Import with Codex** instruction panel; API imports and automatic API generation are disabled, even if an API key is present. The website cannot consume your ChatGPT subscription directly.

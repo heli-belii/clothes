@@ -15,7 +15,7 @@ const publicScreenshots = new Map([
   ["docs/screenshots/recommendations.png", ["409ce9874e3aa79dab6f7d94c34f1136c63cda728e71896416372905468e56bb"]],
   ["docs/screenshots/color-language.png", ["9669567ca67273b718a351b8cacbfdd9c897e0bfb4b21d3814aab08ac4e6bd4b"]],
 ]);
-const privatePath = /(?:^|\/)(?:data|\.aws|\.codex|node_modules|dist)(?:\/|$)|(?:^|\/)\.env(?:\.|$)|\.(?:pem|key|p12|pfx)$/i;
+const privatePath = /(?:^|\/)(?:data|\.aws|\.codex|node_modules|dist)(?:\/|$)|(?:^|\/)\.env(?:\.|$)|(?:^|\/)AGENTS\.local\.md$|\.(?:pem|key|p12|pfx)$/i;
 const mediaPath = /\.(?:png|jpe?g|webp|hei[cf]|gif|avif|tiff?|mov|mp4|dng|bmp|svgz|zip|tar|gz|7z|pdf)$/i;
 const secretPatterns = [
   ["private key", /-----BEGIN (?:RSA |EC |OPENSSH |DSA |ENCRYPTED )?PRIVATE KEY-----/],

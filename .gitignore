@@ -23,9 +23,12 @@ data/
 *.[dD][nN][gG]
 *.[bB][mM][pP]
 
-# These two public screenshots are copied unchanged from the original project.
+# Only these reviewed README screenshots are intentionally public.
 !docs/screenshots/gallery.png
-!docs/screenshots/editor.png
+!docs/screenshots/outfits.png
+!docs/screenshots/taste.png
+!docs/screenshots/recommendations.png
+!docs/screenshots/color-language.png
 
 # Local credentials and machine-specific configuration.
 .aws/

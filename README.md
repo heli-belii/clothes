@@ -1,12 +1,42 @@
 # Clothes — my wardrobe
 
-A local wardrobe app for organizing clothes, creating outfits, understanding personal style, and finding new pieces that work with an existing collection.
+A local wardrobe app for organizing clothes, planning outfits, and discovering your style.
 
-This project builds on **[Wardrobe](https://github.com/tandpfun/wardrobe) by [Thijs Simonian (@tandpfun)](https://github.com/tandpfun)**. Thank you, Thijs, for creating and sharing the original app. The starting source was copied from upstream commit [`f44006cce7e4779e595a35b25fbbc8dabc68d7e4`](https://github.com/tandpfun/wardrobe/tree/f44006cce7e4779e595a35b25fbbc8dabc68d7e4). This version adds personal setup instructions, an outfit studio, style and color analysis, and shopping recommendations. The original MIT copyright and license are preserved in [LICENSE](LICENSE), alongside the copyright for this version's additions.
+Based on [Wardrobe](https://github.com/tandpfun/wardrobe) by [Thijs Simonian (@tandpfun)](https://github.com/tandpfun), starting from commit [`f44006c`](https://github.com/tandpfun/wardrobe/tree/f44006cce7e4779e595a35b25fbbc8dabc68d7e4). Thank you, Thijs, for sharing the original project. Its MIT license and copyright are preserved in [LICENSE](LICENSE).
 
-## Get started
+## Wardrobe
 
-Use Node.js 22 or newer and npm.
+Browse your clothes, filter by category, and edit each piece.
+
+![Current wardrobe gallery](docs/screenshots/gallery.png)
+
+## Outfits
+
+Combine owned pieces, save looks, and preview them on yourself. [Guide](docs/OUTFIT_STUDIO.md).
+
+![Outfit studio with a saved modeled look](docs/screenshots/outfits.png)
+
+## Taste
+
+See your style overview, with evidence from the clothes you own.
+
+![Taste overview and style influences](docs/screenshots/taste.png)
+
+## Recommendations
+
+Set your budget and preferences; the app refreshes your style, then finds matching products.
+
+![Saved product recommendations and styling suggestions](docs/screenshots/recommendations.png)
+
+## Color language
+
+Explore your wardrobe palette and color combinations. [Guide](docs/TASTE.md).
+
+![Wardrobe palette and color combinations](docs/screenshots/color-language.png)
+
+## Run locally
+
+Requires Node.js 22+ and npm.
 
 ```sh
 git clone https://github.com/heli-belii/clothes.git
@@ -17,40 +47,10 @@ mkdir -p data
 npm run dev -- --host 127.0.0.1
 ```
 
-Open the local address printed by Vite, normally [localhost:5173](http://localhost:5173). A fresh checkout starts with an empty wardrobe. Keep the server running while using the app.
+Open [localhost:5173](http://localhost:5173). Imports default to Codex; API imports are optional. [Setup and hosting](docs/PERSONAL_SETUP.md).
 
-Imports default to `WARDROBE_IMPORT_MODE=codex`; no API key is required for this mode. Open the project in Codex, provide your own clothing photos and identity references, and use the bundled [import-clothes skill](.agents/skills/import-clothes/SKILL.md). The optional browser importer uses separately billed API calls and must be enabled explicitly. See [the setup guide](docs/PERSONAL_SETUP.md) for both workflows.
+## Privacy and checks
 
-## Explore your wardrobe
+Personal photos, wardrobe data, and generated assets stay in Git-ignored `data/`; credentials stay in `.env`. Only reviewed README screenshots are intentionally public.
 
-- **Wardrobe:** Browse imported clothes and edit their details.
-- **Outfits:** Combine owned pieces, save and compare looks, and generate modeled previews. See [the outfit studio guide](docs/OUTFIT_STUDIO.md).
-- **Taste:** View your style profile and the clothing that supports it.
-- **Recommendations:** Set a budget and shopping preferences, then click **Find recommendations**. The app refreshes your style first and automatically researches matching products. Preferences and saved responses stay in this tab.
-- **Color language:** Explore your wardrobe palette and combinations of owned clothes. See [the Taste guide](docs/TASTE.md).
-
-The local outfit, style, and shopping runners use Codex signed in with ChatGPT. Modeled photos require your own identity references; this repository does not include them.
-
-## Keep personal files private
-
-Store original photos, identity references, cutouts, modeled images, wardrobe records, and generated results inside `data/`. Keep credentials in `.env`. Both are Git-ignored. Common photo and video formats are also ignored outside `data/` to help catch accidental additions. The only allowed tracked photos are the two unchanged public screenshots from the original project.
-
-```sh
-npm run check
-```
-
-This checks tracked working files, staged files, and available Git history for private paths, unreviewed media, and recognized secret patterns, then runs the tests and production build. CI fetches the full history and runs the same checks. The privacy check is a guard rather than a complete secret scanner; review changes before committing and never force-add personal files. See [CONTRIBUTING.md](CONTRIBUTING.md).
-
-Making the source repository public does not publish your ignored local wardrobe. Running the app as a public website is a separate task: the current app has no user authentication and should run on localhost with personal data. See [hosting notes](docs/PERSONAL_SETUP.md#build-and-hosting).
-
-## Original project screenshots
-
-These are unchanged screenshots from [tandpfun/wardrobe](https://github.com/tandpfun/wardrobe), not this copy's personal wardrobe or the latest interface.
-
-![Original Wardrobe gallery](docs/screenshots/gallery.png)
-
-![Original Wardrobe modeled editor](docs/screenshots/editor.png)
-
-## License
-
-[MIT](LICENSE). Original project: [Wardrobe](https://github.com/tandpfun/wardrobe), by [Thijs Simonian](https://github.com/tandpfun). [Original announcement](https://x.com/cdngdev/status/2076812846793650485).
+Run `npm run check` for the privacy audit, tests, and build. [Contributing](CONTRIBUTING.md).

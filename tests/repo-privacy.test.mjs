@@ -59,11 +59,11 @@ test("privacy audit checks unstaged secrets and redacts values", (t) => {
   assert.match(result.stderr, /possible OpenAI key/); assert.ok(!result.stderr.includes(fakeKey));
 });
 
-test("privacy audit allows only unchanged public upstream screenshots", (t) => {
+test("privacy audit allows only exact reviewed README screenshots", (t) => {
   const { git, write, run } = fixture(t);
   const name = "docs/screenshots/gallery.png";
   write(name, readFileSync(new URL(`../${name}`, import.meta.url))); git("add", name);
   assert.equal(run().status, 0);
   write(name, Buffer.from([137, 80, 78, 71, 13, 10, 26, 10, 0]));
-  const result = run(); assert.equal(result.status, 1); assert.match(result.stderr, /differs from the reviewed public original/);
+  const result = run(); assert.equal(result.status, 1); assert.match(result.stderr, /differs from the reviewed version/);
 });

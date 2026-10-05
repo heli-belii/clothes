@@ -1,6 +1,6 @@
 # Set up your personal clothes collection
 
-This project is based on [Wardrobe](https://github.com/tandpfun/wardrobe) by [Thijs Simonian (@tandpfun)](https://github.com/tandpfun), starting from commit `f44006cce7e4779e595a35b25fbbc8dabc68d7e4`. The upstream MIT attribution is retained alongside the copyright for this version's additions. No personal wardrobe database or identity references are supplied; a fresh checkout starts empty. The documentation screenshots are unchanged public examples from the original project.
+This project is based on [Wardrobe](https://github.com/tandpfun/wardrobe) by [Thijs Simonian (@tandpfun)](https://github.com/tandpfun), starting from commit `f44006cce7e4779e595a35b25fbbc8dabc68d7e4`. The upstream MIT attribution is retained alongside the copyright for this version's additions. No personal wardrobe database or identity references are supplied; a fresh checkout starts empty. The README screenshots show this version of the app and were explicitly approved for publication.
 
 ## Run on your Mac
 
@@ -122,7 +122,7 @@ Keep the package name `wardrobe` unless you also update the import script's repo
 
 Back up the entire `data/` folder separately. Browser edits are not written back to `library.json`, so a folder backup alone does not preserve subsequent name/color/tag edits made in the gallery. Keep a consistent browser and local URL; switching browser, port, or hostname can make those edits appear missing. Avoid clearing site storage if you want to retain them.
 
-`.env`, `data/`, `node_modules/`, and `dist/` are ignored by Git. Common photo/video formats are ignored outside `data/` as well, except the two unchanged public upstream screenshots. Keep personal photos out of `public/`, which the app serves directly. Never force-add private files: ignore rules do not protect files already committed. Run `npm run check:privacy` before publishing; it checks tracked files, the index, and available history without printing secret values. The check detects common secret patterns but cannot identify every possible credential.
+`.env`, `data/`, `node_modules/`, and `dist/` are ignored by Git. Common photo/video formats are ignored outside `data/` as well, except the explicitly reviewed README screenshots. Keep personal photos out of `public/`, which the app serves directly. Never force-add private files: ignore rules do not protect files already committed. Run `npm run check:privacy` before publishing; it checks tracked files, the index, and available history without printing secret values. The check detects common secret patterns but cannot identify every possible credential.
 
 ## Build and hosting
 

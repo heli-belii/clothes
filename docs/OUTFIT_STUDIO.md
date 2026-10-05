@@ -3,12 +3,14 @@
 Start the project with `npm run dev`, then open the **Outfits** tab or `http://localhost:5173/#outfits`.
 
 1. Select one top, one pair of bottoms and one pair of shoes. A jacket and an accessory are optional, with one selection each. The layout updates immediately using your real wardrobe cutouts.
-2. Choose **School**, **Hiking** or **Gym**. Adjust lighting, weather and optional background details.
+2. Choose **School**, **Hiking**, **Gym** or **Beach**. Adjust lighting, weather and optional background details.
 3. Open **Personalize your photos** to choose framing, pose, shirt tuck, long sleeve styling and jacket styling. Add any preferences to the notes. **Remember these preferences** applies them to future new looks.
 4. Name and **Save look** to keep it. Incomplete looks can be saved; all three required categories must be filled before preparing a try-on. Star favorites and select two saved looks to compare them. Removing a look offers Undo.
 5. Click **Generate with Codex**. The website saves the look and exact references, starts your locally installed Codex, and displays the generated photo automatically under **On me**. Keep the wardrobe server running until it finishes. You do not need to copy a prompt into chat.
 
-The connection requires the Codex CLI to be installed on this Mac, signed in **with ChatGPT**, with built-in image generation enabled. Built-in images count toward your Codex allowance. The runner forces ChatGPT sign-in and removes API-key environment variables from its child process; it does not use a separately billed image API. Only one outfit runs at a time, and repeated clicks on an active request reuse the existing run.
+The connection requires the Codex CLI to be installed on this computer, signed in **with ChatGPT**, with built-in image generation enabled. Built-in images count toward your Codex allowance. The runner forces ChatGPT sign-in and removes API-key environment variables from its child process; it does not use a separately billed image API. Only one outfit runs at a time, and repeated clicks on an active request reuse the existing run.
+
+Before generating, add your primary PNG at `data/model-reference.png` and at least one user-only PNG crop under `data/identity-references/`. Filenames for crops are unrestricted.
 
 The request includes the primary photo and the available supplemental identity references, all exact selected cutouts, the setting and the styling choices. Codex should inspect the references, generate one image, review identity and garment accuracy, and attach the accepted PNG with the command included in the request. Source photos remain unchanged.
 

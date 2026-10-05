@@ -1,3 +1,4 @@
+import { isLocalRequest } from "./local-request.mjs";
 import { randomUUID } from "node:crypto";
 import { copyFile, mkdir, readFile, readdir, rename, rm, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
@@ -493,6 +494,7 @@ export function wardrobeImportApi(options = {}) {
   async function handler(req, res, next) {
     const url = new URL(req.url, "http://localhost");
     if (!url.pathname.startsWith("/api/import/")) return next();
+    if (!isLocalRequest(req)) return json(res, 403, { error: "Access your wardrobe from the local website on this computer." });
     try {
       if (url.pathname === "/api/import/wardrobe" && req.method === "GET") {
         return json(res, 200, await loadImported());
@@ -521,7 +523,7 @@ export function wardrobeImportApi(options = {}) {
         const file = path.join(libraryAssetDir, path.basename(libraryAssetMatch[1]));
         await stat(file);
         res.setHeader("Content-Type", "image/png");
-        res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+        res.setHeader("Cache-Control", "private, no-store");
         return res.end(await readFile(file));
       }
       const assetMatch = url.pathname.match(/^\/api\/import\/assets\/([a-f0-9-]{36})\/([\w.-]+)$/i);

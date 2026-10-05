@@ -1,13 +1,13 @@
 # Contributing
 
-Fork the repo, create a focused branch, and open a pull request. Use Node.js 22 or newer.
+Fork the repo, create a focused branch, and open a pull request. Use Node.js 22.12 or newer.
 
 ```sh
 npm ci
 npm run check
 ```
 
-`check` runs the repository privacy audit, Taste and outfit tests, and production build. CI uses the full Git history for the same audit.
+`check` runs the repository privacy audit, Taste, outfit, and local API privacy tests, and production build. CI uses the full Git history for the same privacy audit and also runs `npm audit --audit-level=moderate`.
 
 Keep `.env`, credentials, personal photos, wardrobe records, and generated assets out of Git. Store all personal assets under the ignored `data/` directory. Do not force-add ignored files. Common photo/video formats are ignored throughout the repository; only the exact reviewed README screenshots are approved for tracking. To add a public visual asset, review its provenance and privacy before updating the ignore rules and approved hashes in the privacy check.
 

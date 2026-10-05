@@ -1,5 +1,5 @@
 import { randomUUID, createHash } from "node:crypto";
-import { copyFile, mkdir, readFile, rename, stat, writeFile } from "node:fs/promises";
+import { copyFile, mkdir, readFile, rename, readdir, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 import sharp from "sharp";
 import { DEFAULT_PREFERENCES, OUTFIT_SETTINGS, OUTFIT_SLOTS, normalizeContext, normalizePreferences, normalizeSelection, outfitFingerprint, outfitName } from "../src/outfit-model.mjs";
@@ -30,7 +30,13 @@ export function createOutfitStore(root) {
   function requestDir(id) { if (!REQUEST_ID.test(id)) fail("Invalid outfit request."); return path.join(requestsDir, id); }
   async function request(id) { const value = await readJson(path.join(requestDir(id), "request.json"), null); if (!value) fail("Outfit request not found.", 404); return value; }
   async function identities() {
-    const paths = ["data/model-reference.png", "data/identity-references/front-user.png", "data/identity-references/side-user.png"];
+    let crops = [];
+    try {
+      crops = (await readdir(path.join(data, "identity-references"), { withFileTypes: true }))
+        .filter((entry) => entry.isFile() && /\.png$/i.test(entry.name))
+        .map((entry) => `data/identity-references/${entry.name}`).sort();
+    } catch (error) { if (error.code !== "ENOENT") throw error; }
+    const paths = ["data/model-reference.png", ...crops];
     const available = [];
     for (const file of paths) { try { if ((await stat(path.join(root, file))).isFile()) available.push(file); } catch (error) { if (error.code !== "ENOENT") throw error; } }
     return available;

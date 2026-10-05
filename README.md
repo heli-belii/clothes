@@ -36,7 +36,7 @@ Explore your wardrobe palette and color combinations. [Guide](docs/TASTE.md).
 
 ## Run locally
 
-Requires Node.js 22+ and npm.
+Requires Node.js 22.12+ and npm. Automatic AI features also require the [Codex CLI](https://learn.chatgpt.com/docs/cli), signed in with ChatGPT.
 
 ```sh
 git clone https://github.com/heli-belii/clothes.git
@@ -47,7 +47,7 @@ mkdir -p data
 npm run dev -- --host 127.0.0.1
 ```
 
-Open [localhost:5173](http://localhost:5173). [Setup and hosting](docs/PERSONAL_SETUP.md).
+Open [localhost:5173](http://localhost:5173). A fresh checkout starts empty: import your own clothes with Codex or the optional API importer. [Setup and hosting](docs/PERSONAL_SETUP.md).
 
 ## AI usage
 

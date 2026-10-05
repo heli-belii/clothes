@@ -19,13 +19,13 @@ export function createCodexConfiguration({ command, env, runCommand = execute, r
       readiness = (async () => {
         try {
           const auth = await runCommand(command, [...CHATGPT_CONFIG, "login", "status"], { env, timeout: 15000, maxBuffer: 128 * 1024 });
-          if (!/Logged in using ChatGPT/i.test(`${auth.stdout}\n${auth.stderr}`)) return { available: false, reason: "Sign in to Codex with your ChatGPT account on this Mac, then refresh." };
+          if (!/Logged in using ChatGPT/i.test(`${auth.stdout}\n${auth.stderr}`)) return { available: false, reason: "Sign in to Codex with your ChatGPT account on this computer, then refresh." };
           if (requireImages) {
             const features = await runCommand(command, [...CHATGPT_CONFIG, "features", "list"], { env, timeout: 15000, maxBuffer: 128 * 1024 });
             if (!/^image_generation\s+\S+\s+true\s*$/m.test(features.stdout)) return { available: false, reason: "Built-in image generation is not enabled in this Codex installation. You can use the request in your Codex chat." };
           }
           return { available: true, billing: "chatgpt", reason: null };
-        } catch { return { available: false, reason: "Codex is not ready on this Mac. Sign in with ChatGPT, then refresh." }; }
+        } catch { return { available: false, reason: "Codex is not ready on this computer. Sign in with ChatGPT, then refresh." }; }
       })();
     }
     return readiness;

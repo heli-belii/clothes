@@ -2,16 +2,16 @@
 
 This project is based on [Wardrobe](https://github.com/tandpfun/wardrobe) by [Thijs Simonian (@tandpfun)](https://github.com/tandpfun), starting from commit `f44006cce7e4779e595a35b25fbbc8dabc68d7e4`. The upstream MIT attribution is retained alongside the copyright for this version's additions. No personal wardrobe database or identity references are supplied; a fresh checkout starts empty. The README screenshots show this version of the app and were explicitly approved for publication.
 
-## Run on your Mac
+## Run locally
 
-Use Node.js 22 or newer (upstream CI uses Node.js 22) and npm. From this repository:
+Use Node.js 22.12 or newer (CI uses Node.js 22) and npm. From this repository:
 
 ```sh
 npm ci
 npm run dev -- --host 127.0.0.1
 ```
 
-Open the address printed by Vite, normally `http://localhost:5173`. Keep the terminal running. Stop it with Control-C. The explicit host flag limits access to this Mac; upstream's default binds to all network interfaces.
+Open the address printed by Vite, normally `http://localhost:5173`. Keep the terminal running. Stop it with Control-C. The server binds to localhost by default, so your collection is accessible only on this computer.
 
 On a fresh checkout, create a local `.env` file and `data/` directory with:
 
@@ -20,9 +20,19 @@ cp .env.example .env
 mkdir -p data
 ```
 
+On Windows PowerShell, use `Copy-Item .env.example .env` and `New-Item -ItemType Directory -Force data` instead of `cp` and `mkdir -p`.
+
+## Codex setup
+
+The automatic Outfits, Taste, and Recommendations buttons launch the local [Codex CLI](https://learn.chatgpt.com/docs/cli). Install it using the official guide, run `codex login` and choose ChatGPT, then confirm `codex login status`. If it is not on the server's PATH, set `WARDROBE_CODEX_COMMAND` in `.env` to the executable's absolute path and restart. Outfits also requires built-in image generation to be enabled.
+
+On Linux and WSL2, follow the [sandbox prerequisites](https://learn.chatgpt.com/docs/sandboxing#prerequisites), including installing `bubblewrap`. This app was checked locally on macOS; CI checks the source on Linux. Native Windows AI launching has not been verified. For Windows, run both the server and Codex inside WSL2.
+
 ## Private agent preferences
 
 The public `AGENTS.md` contains general instructions. Put your own reference-photo paths and wardrobe preferences in `data/AGENTS.local.md`; agents are instructed to read it before wardrobe tasks. This file, `data/model-reference.png`, and supplemental identity crops under `data/identity-references/` are Git-ignored. Do not put personal instructions into the public file.
+
+For the Outfits tab, place a real PNG at `data/model-reference.png` and at least one clear, user-only PNG crop in `data/identity-references/`. Supplemental filenames can be anything; all PNGs in that folder are used. Keep only identity photos there. The API importer's `WARDROBE_MODEL_REFERENCE` override applies to imports only.
 
 ## Default: import with your Codex allowance
 
@@ -66,7 +76,7 @@ For complete outfit ideas, request a specific number:
 $generate-outfits Create 5 modeled outfit ideas from my wardrobe.
 ```
 
-The outfit skill creates a separate lookbook under `data/`. For combinations you choose yourself, use the **Outfits** tab: select clothes, choose School, Hiking or Gym, save looks, and click **Generate with Codex** to create a modeled photo directly through your local ChatGPT-authenticated Codex. See [the outfit studio guide](OUTFIT_STUDIO.md).
+The outfit skill creates a separate lookbook under `data/`. For combinations you choose yourself, use the **Outfits** tab: select clothes, choose School, Hiking, Gym or Beach, save looks, and click **Generate with Codex** to create a modeled photo directly through your local ChatGPT-authenticated Codex. See [the outfit studio guide](OUTFIT_STUDIO.md).
 
 ## Import existing cutouts without AI
 
@@ -135,7 +145,7 @@ npm run check
 npm run preview -- --host 127.0.0.1
 ```
 
-`check` runs the privacy audit, Taste and outfit tests, and builds the application into `dist/`; preview normally opens on `http://localhost:4173`. The preview server also attaches the local API middleware, so it can read the same `.env` and `data/` when run from this repository with dependencies installed.
+`check` runs the privacy audit, Taste, outfit, and local API privacy tests, and builds the application into `dist/`; preview normally opens on `http://localhost:4173`. The preview server also attaches the local API middleware, so it can read the same `.env` and `data/` when run from this repository with dependencies installed.
 
 This project needs its Node server for the wardrobe API and image serving. Uploading only `dist/` to GitHub Pages or another static host does **not** provide a working wardrobe importer or library. Vite preview is useful for local verification, not a production deployment architecture.
 

@@ -64,7 +64,7 @@ test("requests freeze exact cutouts, preserve all identity references and reuse 
   const look = await store.saveLook(draft({ selection: all, context: { ...DEFAULT_CONTEXT, background: "hiking", sleeves: "rolled" } }));
   const request = await store.prepareRequest(look.id);
   assert.equal(request.garments.length, 5);
-  assert.equal(request.identityReferences.length, 3);
+  assert.deepEqual(request.identityReferences, ["data/model-reference.png", "data/identity-references/front-user.png", "data/identity-references/side-user.png"]);
   assert.equal(request.references.length, 5);
   assert.match(request.prompt, /Image 4 is the complete selected-clothes/);
   assert.match(request.prompt, /outdoor hiking trail/);
